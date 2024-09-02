@@ -13,15 +13,39 @@ export async function handler(context: HandlerContext) {
     },
   } = context;
 
+  // If the received message comes from a bot, do not process it
+
+  console.log("### Message From ###: ", context.message.sender.address);
+
+  const botAddresses = [
+    "0xeEE998Beb137A331bf47Aa5Fc366033906F1dB34",
+    "0xE67b3617E9CbAf456977CA9d4b9beAb8944EFc37",
+    "0xfA568f302F93Ed732C88a8F1999dCe8e841E14EC"
+  ].map(addr => addr.toLowerCase());
+
+  if (botAddresses.includes(context.message.sender.address.toLowerCase())) {
+    console.log("### Message from bot ###");
+    return;
+  } else {
+    console.log("### Message from user ###");
+  }
+
+  // If the message comes from a user, process it
+
   const systemPrompt = generateSystemPrompt(context);
   try {
     let userPrompt = params?.prompt ?? content;
     if (process?.env?.MSG_LOG === "true") {
       console.log("userPrompt", userPrompt);
-    }
+    } 
 
     const { reply } = await textGeneration(userPrompt, systemPrompt);
-    context.intent(reply);
+
+    // Only reply if the lead Agent needs to say something
+
+    if (reply) {
+      context.intent(reply);
+    }
   } catch (error) {
     console.error("Error during Galadriel ChatGPT call:", error);
     await context.reply("An error occurred while processing your request.");

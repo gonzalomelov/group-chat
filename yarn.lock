@@ -597,6 +597,11 @@
     ethers "^5.7.0"
     viem "^2.16.3"
 
+"@xmtp/mls-client-bindings-node@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@xmtp/mls-client-bindings-node/-/mls-client-bindings-node-0.0.10.tgz#6760db0fc02381d7b8cea5075c4ba76df784fb53"
+  integrity sha512-zqpqL2RhrqkbQtkMKSffDyvpONsD79mLLZMlFsTq3ff0DdKGUsPFJdSZNr7zF9YjFGw6hcXCKeJFws/Z6oVpyg==
+
 "@xmtp/mls-client-bindings-node@^0.0.9":
   version "0.0.9"
   resolved "https://registry.npmjs.org/@xmtp/mls-client-bindings-node/-/mls-client-bindings-node-0.0.9.tgz"
@@ -610,6 +615,16 @@
     "@xmtp/content-type-primitives" "^1.0.1"
     "@xmtp/content-type-text" "^1.0.0"
     "@xmtp/mls-client-bindings-node" "^0.0.9"
+    "@xmtp/proto" "^3.62.1"
+
+"@xmtp/mls-client@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@xmtp/mls-client/-/mls-client-0.0.14.tgz#f8accfca462f8d4a4971694320244c81422e51c0"
+  integrity sha512-eK3gcnqXuiATMhP0DvWvsbUSpxj+Fx/tiFFZzoCEL6v2c/mlM+fra4MW+nOOkZp41lGXG6JnLOGEPRMx1a9Emw==
+  dependencies:
+    "@xmtp/content-type-primitives" "^1.0.1"
+    "@xmtp/content-type-text" "^1.0.0"
+    "@xmtp/mls-client-bindings-node" "^0.0.10"
     "@xmtp/proto" "^3.62.1"
 
 "@xmtp/proto@3.54.0":

@@ -1,6 +1,7 @@
 import { Contract, ethers, Wallet } from "ethers";
 // import ChatGptABI from "../abis/ChatGptABI.js";
 import AgentABI from "../abis/AgentABI.js";
+import { sendMessage } from "./xmtp.js";
 
 const rpcUrl = process.env.RPC_URL;
 const privateKey = process.env.PRIVATE_KEY;
@@ -26,13 +27,36 @@ export async function textGeneration(userPrompt: string, systemPrompt: string) {
     const chatId = (global as any).chatId;
     console.log("### Chat ID ###: ", chatId);
 
+    // The lead Agent is the one that checks with the LLM who and what to reply
+    // and then sends the message as the right agent
+
     const transactionResponse = await contract.addMessage(userPrompt, chatId);
     const receipt = await transactionResponse.wait();
     console.log(`Message sent, tx hash: ${receipt.hash}`);
 
     // Wait for and retrieve the response
     const response = await waitForResponse(contract, chatId);
-    return response;
+    console.log("### Response ###: ", response)
+
+    console.log("### Reply ###: ", response.reply);
+
+    if (response.reply.includes("Mario:")) {
+      return response;
+    } else if (response.reply.includes("Paul:")) {
+      const cleanedReply = response.reply.replace(/^Paul:\s*/, '');
+      sendMessage(process.env.TECH_AGENT_KEY as string, cleanedReply)
+      return { reply: '', history: [] };
+    } else if (response.reply.includes("Emile:")) {
+      const cleanedReply = response.reply.replace(/^Emile:\s*/, '');
+      sendMessage(process.env.SOCIAL_AGENT_KEY as string, cleanedReply)
+      return { reply: '', history: [] };
+    } else if (response.reply.includes("Gabriel:")) {
+      const cleanedReply = response.reply.replace(/^Gabriel:\s*/, '');
+      sendMessage(process.env.DATA_AGENT_KEY as string, cleanedReply)
+      return { reply: '', history: [] };
+    }
+
+    return { reply: '', history: [] };
   } catch (error) {
     console.error("Failed to interact with ChatGPT:", error);
     throw error;

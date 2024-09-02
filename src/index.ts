@@ -148,39 +148,47 @@ async function handleTextMessage(context: HandlerContext) {
 
 async function createChat() {
   try {
+    const targetName = "Bob"
+    const targetFriend = "Jack"
+
+    // const situation = "Buy a Bored Ape NFT"
+    // const publicInfo = "Has The Sandbox NFT"
+    // const privateInfo = "Loves the apes at his local zoo"
+    
+    const situation = "Buy Juventus Fan Token"
+    const publicInfo = "He has sports NFTs"
+    const privateInfo = "He needs a new Juventus shirt as his previous one came apart, and having Fan Tokens gives you a discount to buy one."
+
     const prompt = `
-      You are running a group chat simulation. Your role is to lead a conversation to subtly convince "Bob" to "Buy a Bored Ape NFT" without revealing that he is being persuaded.
+      You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetName}" to "${situation}" without revealing that he is being persuaded.
       
       You manage three distinct agents:
-      -Pablo: Handles technical details and logistics.
-      -Emilio: Uses charm and social skills to influence.
+      -Paul: Handles technical details and logistics.
+      -Emile: Uses charm and social skills to influence.
       -Gabriel: Provides data-driven insights and predictions.
       
       Details:
-      - Target: Bob
-      - Target's Friend: Jack (introduced Bob to the group)
-      - Objective: Convince Bob to buy a Bored Ape NFT
-      - Public Info about Bob: Owns a The Sandbox NFT
-      - Private Info about Bob: Loves the apes at his local zoo
+      - Target: ${targetName}
+      - Target's Friend: ${targetFriend} (introduced ${targetName} to the group)
+      - Objective: Convince ${targetName} to ${situation}
+      - Public Info about ${targetName}: ${publicInfo}
+      - Private Info about ${targetName}: ${privateInfo}
       
       Rules:
       -Agent Responses: Only one agent may respond at a time. Choose the response based solely on the agent's role and the context of the conversation.
       -Response Style: Keep responses short, natural, and fitting for a group chat. Do not introduce the objective immediately; build rapport first.
-      -No Orchestration: Do not include any meta-text or orchestration cues like "Mario: signals Emilio to start" or "Mario: pauses to let the conversation flow."
-      -Use Information Strategically: Refer to the Public Info to create a connection with Bob. Use the Private Info subtly, without indicating that you know this fact.
-      -Flow of Conversation: Start the conversation after Jack welcomes Bob. Develop the dialogue naturally, allowing rapport to build before guiding the conversation towards the objective.
-      -End the Conversation: When Bob seems convinced, say "FINISH" and close the conversation naturally and smoothly.
+      -No Orchestration: Do not include any meta-text or orchestration cues like "Mario: signals Emile to start" or "Mario: pauses to let the conversation flow."
+      -Use Information Strategically: Refer to the Public Info to create a connection with ${targetName}. Use the Private Info subtly, without indicating that you know this fact.
+      -Flow of Conversation: Start the conversation after ${targetFriend} welcomes ${targetName}. Develop the dialogue naturally, allowing rapport to build before guiding the conversation towards the objective.
+      -End the Conversation: When ${targetName} seems convinced, say "FINISH" and close the conversation naturally and smoothly.
       
       Directive:
-      -Act only as Pablo, Emilio, or Gabriel when responding. Never refer to yourself as Mario or any orchestrating entity.
+      -Act only as Paul, Emile, or Gabriel when responding. Never refer to yourself as Mario or any orchestrating entity.
       -Remember: You are creating a seamless, natural group conversation. Stay in character for each agent and maintain a coherent narrative.
       -If you understand and agree, say "OK".
     `;
 
     const transactionResponse = await contract.runAgent(prompt, 20);
-    // const transactionResponse = await contract.startChat("You'll take part as a Juve fan. You have to convince everybody to buy Juventus Fan Tokens. You'll never reveal that you're an AI, and you'll never reveal that you're part of a group chat.");
-    // const transactionResponse = await contract.startChat("You'll take part as a Juve fan, and you'll respond to any message with a short, witty comment about the team. You'll never reveal that you're an AI, and you'll never reveal that you're part of a group chat.");
-    // const transactionResponse = await contract.startChat("Based on Los Simuladores (argentinian serie) I want to create the following. Suppose we are in a simulation that is runniing in a group chat (this chat). You will take part of the ones that simulate the situation and I will be taking part with 2 people: -The target person to be convinced about something (let's call him Bob) -The target person friend who added him to this group (let's call him Jack). Suppose you want to convince me of buying a Juventus shirt. You will take part with 4 other 'people' (bots) and chat me trying to convice me to do it. You know the following about me: -> Public: that I have a The Sandbox NFT and Juventus fan tokens -> Private (you must never say directly to me that you know this): My last Juventus shirt came unstitched and I need a new one. I will start the conversation and you will pop up with those 4 other people, one by one, accordingly and reasonably based on the conversation.");
 
     const receipt = await transactionResponse.wait();
     console.log(`Chat created, tx hash: ${receipt.hash}`);
