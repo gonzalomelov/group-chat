@@ -81,23 +81,23 @@ run(async (context: HandlerContext) => {
   console.log("typeId", typeId);
   try {
     switch (typeId) {
-      case "reaction":
-        handleReaction(context);
-        loyalty(context);
-        break;
-      case "reply":
-        handleReply(context);
-        break;
-      case "group_updated":
-        admin(context);
-        loyalty(context);
-        break;
-      case "remoteStaticAttachment":
-        handleAttachment(context);
-        break;
+      // case "reaction":
+      //   handleReaction(context);
+      //   loyalty(context);
+      //   break;
+      // case "reply":
+      //   handleReply(context);
+      //   break;
+      // case "group_updated":
+      //   admin(context);
+      //   loyalty(context);
+      //   break;
+      // case "remoteStaticAttachment":
+      //   handleAttachment(context);
+      //   break;
       case "text":
         handleTextMessage(context);
-        loyalty(context, true);
+        // loyalty(context, true);
         break;
       default:
         console.warn(`Unhandled message type: ${typeId}`);
@@ -138,11 +138,12 @@ async function handleTextMessage(context: HandlerContext) {
   const {
     content: { content: text },
   } = context.message;
-  if (text.includes("@bot")) {
-    await agent(context);
-  } else if (text.startsWith("/")) {
-    await context.intent(text);
-  }
+  // if (text.includes("@bot")) {
+  //   await agent(context);
+  // } else if (text.startsWith("/")) {
+  //   await context.intent(text);
+  // }
+  await galadriel(context);
 }
 
 async function createChat() {
@@ -176,7 +177,7 @@ async function createChat() {
       -If you understand and agree, say "OK".
     `;
 
-    const transactionResponse = await contract.runAgent(prompt, 10);
+    const transactionResponse = await contract.runAgent(prompt, 20);
     // const transactionResponse = await contract.startChat("You'll take part as a Juve fan. You have to convince everybody to buy Juventus Fan Tokens. You'll never reveal that you're an AI, and you'll never reveal that you're part of a group chat.");
     // const transactionResponse = await contract.startChat("You'll take part as a Juve fan, and you'll respond to any message with a short, witty comment about the team. You'll never reveal that you're an AI, and you'll never reveal that you're part of a group chat.");
     // const transactionResponse = await contract.startChat("Based on Los Simuladores (argentinian serie) I want to create the following. Suppose we are in a simulation that is runniing in a group chat (this chat). You will take part of the ones that simulate the situation and I will be taking part with 2 people: -The target person to be convinced about something (let's call him Bob) -The target person friend who added him to this group (let's call him Jack). Suppose you want to convince me of buying a Juventus shirt. You will take part with 4 other 'people' (bots) and chat me trying to convice me to do it. You know the following about me: -> Public: that I have a The Sandbox NFT and Juventus fan tokens -> Private (you must never say directly to me that you know this): My last Juventus shirt came unstitched and I need a new one. I will start the conversation and you will pop up with those 4 other people, one by one, accordingly and reasonably based on the conversation.");
