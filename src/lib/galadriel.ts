@@ -46,15 +46,15 @@ export async function textGeneration(userPrompt: string, systemPrompt: string) {
     if (response.reply.includes("Mario:")) {
       return response;
     } else if (response.reply.includes("Paul:")) {
-      const cleanedReply = response.reply.replace(/^Paul:\s*/, '');
+      const cleanedReply = response.reply.replace(/^(Paul:|\*\*Paul:\*\*)\s*/, '');
       sendMessage(process.env.TECH_AGENT_KEY as string, cleanedReply, groupId)
       return { reply: '', history: [] };
     } else if (response.reply.includes("Emile:")) {
-      const cleanedReply = response.reply.replace(/^Emile:\s*/, '');
+      const cleanedReply = response.reply.replace(/^(Emile:|\*\*Emile:\*\*)\s*/, '');
       sendMessage(process.env.SOCIAL_AGENT_KEY as string, cleanedReply, groupId)
       return { reply: '', history: [] };
     } else if (response.reply.includes("Gabriel:")) {
-      const cleanedReply = response.reply.replace(/^Gabriel:\s*/, '');
+      const cleanedReply = response.reply.replace(/^(Gabriel:|\*\*Gabriel:\*\*)\s*/, '');
       sendMessage(process.env.DATA_AGENT_KEY as string, cleanedReply, groupId)
       return { reply: '', history: [] };
     }
