@@ -31,7 +31,7 @@ app.post("/group-chats", async (req, res) => {
         OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY,
         STACK_API_KEY: process.env.STACK_API_KEY,
         MSG_LOG: process.env.MSG_LOG,
-        groupId: groupId, // Pass groupId to the worker
+        groupId: groupId,
       },
     });
 

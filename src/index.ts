@@ -1,6 +1,6 @@
 import { run, HandlerContext, CommandHandlers } from "@xmtp/message-kit";
 import { Contract, ethers, Wallet } from "ethers";
-import { workerData } from 'worker_threads'; // Add this import
+import { workerData } from 'worker_threads';
 import { commands } from "./commands.js";
 import { handler as bet } from "./handler/betting.js";
 import { handler as tipping } from "./handler/tipping.js";
@@ -108,13 +108,13 @@ async function createChat() {
     const targetName = "Bob"
     const targetFriend = "Jack"
 
-    // const situation = "Buy a Bored Ape NFT"
-    // const publicInfo = "Has The Sandbox NFT"
-    // const privateInfo = "Loves the apes at his local zoo"
+    const situation = "Buy a Bored Ape NFT"
+    const publicInfo = "Has The Sandbox NFT"
+    const privateInfo = "Loves the apes at his local zoo"
     
-    const situation = "Buy Juventus Fan Token"
-    const publicInfo = "He has sports NFTs"
-    const privateInfo = "He needs a new Juventus shirt as his previous one came apart, and having Fan Tokens gives you a discount to buy one."
+    // const situation = "Buy Juventus Fan Token"
+    // const publicInfo = "He has sports NFTs"
+    // const privateInfo = "He needs a new Juventus shirt as his previous one came apart, and having Fan Tokens gives you a discount to buy one."
 
     const prompt = `
       You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetName}" to "${situation}" without revealing that he is being persuaded.
