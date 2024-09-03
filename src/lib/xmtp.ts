@@ -75,7 +75,7 @@ async function handleConversations(client: Client) {
   }
 }
 
-export async function sendMessage(senderPK: string, message: string) {
+export async function sendMessage(senderPK: string, message: string, groupId: string) {
   console.log("Sending message: ", message);
 
   // Create a new wallet instance
@@ -118,5 +118,5 @@ export async function sendMessage(senderPK: string, message: string) {
   // );
   // console.log("Group chat created successfully!");
   // You can now use this conversation to send messages, etc.
-  await sendMessageToGroup(client, "fb32d5e33ac49f4e7d7ae710a89d59f4", message);
+  await sendMessageToGroup(client, groupId, message);
 }

@@ -24,6 +24,9 @@ interface Message {
 
 export async function textGeneration(userPrompt: string, systemPrompt: string) {
   try {
+    const groupId = (global as any).groupId;
+    console.log("### Group ID ###: ", groupId);
+
     const chatId = (global as any).chatId;
     console.log("### Chat ID ###: ", chatId);
 
@@ -44,15 +47,15 @@ export async function textGeneration(userPrompt: string, systemPrompt: string) {
       return response;
     } else if (response.reply.includes("Paul:")) {
       const cleanedReply = response.reply.replace(/^Paul:\s*/, '');
-      sendMessage(process.env.TECH_AGENT_KEY as string, cleanedReply)
+      sendMessage(process.env.TECH_AGENT_KEY as string, cleanedReply, groupId)
       return { reply: '', history: [] };
     } else if (response.reply.includes("Emile:")) {
       const cleanedReply = response.reply.replace(/^Emile:\s*/, '');
-      sendMessage(process.env.SOCIAL_AGENT_KEY as string, cleanedReply)
+      sendMessage(process.env.SOCIAL_AGENT_KEY as string, cleanedReply, groupId)
       return { reply: '', history: [] };
     } else if (response.reply.includes("Gabriel:")) {
       const cleanedReply = response.reply.replace(/^Gabriel:\s*/, '');
-      sendMessage(process.env.DATA_AGENT_KEY as string, cleanedReply)
+      sendMessage(process.env.DATA_AGENT_KEY as string, cleanedReply, groupId)
       return { reply: '', history: [] };
     }
 

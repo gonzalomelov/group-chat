@@ -1,5 +1,6 @@
 import { run, HandlerContext, CommandHandlers } from "@xmtp/message-kit";
 import { Contract, ethers, Wallet } from "ethers";
+import { workerData } from 'worker_threads'; // Add this import
 import { commands } from "./commands.js";
 import { handler as bet } from "./handler/betting.js";
 import { handler as tipping } from "./handler/tipping.js";
@@ -62,50 +63,6 @@ const appConfig = {
   commands: commands,
   commandHandlers: commandHandlers,
 };
-
-const chatId = await createChat();
-// const chatId = 4;
-
-(global as any).chatId = chatId;
-
-console.log("### Chat ID index ###: ", chatId);
-
-console.log("### GONZALO ###: run executed");
-
-// Main function to run the app
-run(async (context: HandlerContext) => {
-  const {
-    message: { typeId },
-  } = context;
-  console.log("### GONZALO ###: inside run");
-  console.log("typeId", typeId);
-  try {
-    switch (typeId) {
-      // case "reaction":
-      //   handleReaction(context);
-      //   loyalty(context);
-      //   break;
-      // case "reply":
-      //   handleReply(context);
-      //   break;
-      // case "group_updated":
-      //   admin(context);
-      //   loyalty(context);
-      //   break;
-      // case "remoteStaticAttachment":
-      //   handleAttachment(context);
-      //   break;
-      case "text":
-        handleTextMessage(context);
-        // loyalty(context, true);
-        break;
-      default:
-        console.warn(`Unhandled message type: ${typeId}`);
-    }
-  } catch (error) {
-    console.error("Error handling message:", error);
-  }
-}, appConfig);
 
 // Handle reaction messages
 async function handleReaction(context: HandlerContext) {
@@ -243,3 +200,48 @@ function getAgentRunId(receipt: ethers.TransactionReceipt, contract: Contract) {
   }
   return agentRunID;
 }
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const { groupId } = workerData as { groupId: string };
+  const chatId = await createChat();
+  // const chatId = 4;
+  (global as any).groupId = groupId;
+  (global as any).chatId = chatId;
+  console.log("### Group ID ###: ", groupId);
+  console.log("### Chat ID index ###: ", chatId);
+  console.log("### GONZALO ###: run executed");
+
+  run(async (context: HandlerContext) => {
+    const { message: { typeId } } = context;
+    console.log("### GONZALO ###: inside run");
+    console.log("typeId", typeId);
+    try {
+      switch (typeId) {
+        // case "reaction":
+        //   handleReaction(context);
+        //   loyalty(context);
+        //   break;
+        // case "reply":
+        //   handleReply(context);
+        //   break;
+        // case "group_updated":
+        //   admin(context);
+        //   loyalty(context);
+        //   break;
+        // case "remoteStaticAttachment":
+        //   handleAttachment(context);
+        //   break;
+        case "text":
+          handleTextMessage(context);
+          // loyalty(context, true);
+          break;
+        default:
+          console.warn(`Unhandled message type: ${typeId}`);
+      }
+    } catch (error) {
+      console.error("Error handling message:", error);
+    }
+  }, appConfig);
+}
+
+export { run, commandHandlers, commands };
