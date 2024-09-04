@@ -124,7 +124,7 @@ async function createChat(params: ChatParams) {
       - Private Info about ${targetFirstName}: ${privateInfo}
       
       Rules:
-      -Agent Responses: Only one agent may respond at a time. Choose the response based solely on the agent's role and the context of the conversation.
+      -Agent Responses: Only one agent must respond at a time. Choose the response based solely on the agent's role and the context of the conversation.
       -Response Style: Keep responses short, natural, and fitting for a group chat. Do not introduce the objective immediately; build rapport first.
       -No Orchestration: Do not include any meta-text or orchestration cues like "Mario: signals Emile to start" or "Mario: pauses to let the conversation flow."
       -Use Information Strategically: Refer to the Public Info to create a connection with ${targetFirstName}. Use the Private Info subtly, without indicating that you know this fact.
