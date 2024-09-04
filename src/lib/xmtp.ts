@@ -104,30 +104,33 @@ async function createGroupConversation(
 
 export async function setupXmtpClient(senderKey?: string) {
   const wallet = await createWallet(senderKey);
-  
+
   if (!fs.existsSync(`.cache`)) {
     fs.mkdirSync(`.cache`);
   }
-  
+
   const client = await setupClient(wallet, {
     dbPath: `.cache/${wallet.account?.address}-${"prod"}`,
   });
-  
+
   await registerClient(client, wallet);
-  
+
   try {
     await handleConversations(client);
   } catch (error) {
     console.error("Error handling conversations:", error);
   }
-  
+
   return client;
 }
 
 export async function createGroupChat(groupName: string, groupImageUrlSquare: string, memberAddresses: string[]) {
   const client = await setupXmtpClient(process.env.KEY);
-  
-  const groupConversation = await createGroupConversation(client, groupName, groupImageUrlSquare, memberAddresses);
+
+  const botAddress = client.accountAddress;
+  const allMembers = [...new Set([...memberAddresses, botAddress])];
+
+  const groupConversation = await createGroupConversation(client, groupName, groupImageUrlSquare, allMembers);
   console.log(`Group "${groupName}" created with id: ${groupConversation.id}`);
 
   return groupConversation;
@@ -135,7 +138,7 @@ export async function createGroupChat(groupName: string, groupImageUrlSquare: st
 
 export async function sendMessage(senderKey: string, message: string, groupId: string) {
   const client = await setupXmtpClient(senderKey);
-  
+
   await sendMessageToGroup(client, groupId, message);
   console.log("Message sent: ", message);
 }
