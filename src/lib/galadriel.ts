@@ -39,7 +39,7 @@ export async function textGeneration(userPrompt: string, systemPrompt: string) {
 
     // Wait for and retrieve the response
     const response = await waitForResponse(contract, chatId);
-    console.log("### Response ###: ", response)
+    // console.log("### Response ###: ", response)
 
     console.log("### Reply ###: ", response.reply);
 
@@ -89,7 +89,7 @@ async function waitForResponse(contract: Contract, chatId: number): Promise<{ re
     const newMessages = await getNewMessages(contract, chatId, allMessages.length);
     if (newMessages.length > 0) {
       allMessages = [...allMessages, ...newMessages];
-      console.log("### All Messages ###: ", allMessages);
+      // console.log("### All Messages ###: ", allMessages);
       const lastMessage = allMessages[allMessages.length - 1];
       if (lastMessage.role === "assistant") {
         return { reply: lastMessage.content, history: allMessages };
