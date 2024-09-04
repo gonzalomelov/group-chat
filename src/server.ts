@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { generatePrivateKey } from "viem/accounts";
 import { createGroupChat, setupXmtpClient } from './lib/xmtp.js';
+import { ChatParams } from './types.js';
 
 dotenv.config();
 
@@ -23,7 +24,7 @@ await setupXmtpClient(process.env.DATA_AGENT_KEY);
 
 app.post("/group-chats", async (req, res) => {
   try {
-    const { target, targetFirstName, situation, privateInfo, groupTitle, groupImage, connectedAddress } = req.body;
+    const { target, targetFirstName, targetFriend, situation, privateInfo, groupTitle, groupImage, connectedAddress } = req.body;
 
     // Validate required fields
     if (!target || !targetFirstName || !situation || !privateInfo || !groupTitle || !groupImage || !connectedAddress) {
@@ -50,7 +51,18 @@ app.post("/group-chats", async (req, res) => {
 
     const { id: groupId } = xmtpChat;
 
+    const publicInfo = "";
+
     const workerId = `group-chat-${Date.now()}`;
+    const chatParams: ChatParams = {
+      target,
+      targetFirstName,
+      targetFriend,
+      situation,
+      publicInfo,
+      privateInfo
+    };
+
     const worker = new Worker(path.join(__dirname, 'index.js'), {
       workerData: {
         RPC_URL: process.env.RPC_URL,
@@ -61,12 +73,7 @@ app.post("/group-chats", async (req, res) => {
         MSG_LOG: process.env.MSG_LOG,
         groupId,
         botKey,
-        // target,
-        // targetFirstName,
-        // situation,
-        // privateInfo,
-        // groupTitle,
-        // groupImage,
+        chatParams,
       },
     });
 

@@ -14,6 +14,7 @@ import { handler as image } from "./handler/image.js";
 import { handler as galadriel } from "./handler/galadriel.js";
 // import ChatGptABI from "./abis/ChatGptABI.js";
 import AgentABI from "./abis/AgentABI.js";
+import { ChatParams } from './types.js';
 
 const rpcUrl = process.env.RPC_URL;
 const privateKey = process.env.PRIVATE_KEY;
@@ -103,21 +104,12 @@ async function handleTextMessage(context: HandlerContext) {
   await galadriel(context);
 }
 
-async function createChat() {
+async function createChat(params: ChatParams) {
   try {
-    const targetName = "Bob"
-    const targetFriend = "Jack"
-
-    const situation = "Buy a Bored Ape NFT"
-    const publicInfo = "Has The Sandbox NFT"
-    const privateInfo = "Loves the apes at his local zoo"
-    
-    // const situation = "Buy Juventus Fan Token"
-    // const publicInfo = "He has sports NFTs"
-    // const privateInfo = "He needs a new Juventus shirt as his previous one came apart, and having Fan Tokens gives you a discount to buy one."
+    const { targetFirstName, targetFriend, situation, publicInfo, privateInfo } = params;
 
     const prompt = `
-      You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetName}" to "${situation}" without revealing that he is being persuaded.
+      You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situation}" without revealing that he is being persuaded.
       
       You manage three distinct agents:
       -Paul: Handles technical details and logistics.
@@ -125,19 +117,19 @@ async function createChat() {
       -Gabriel: Provides data-driven insights and predictions.
       
       Details:
-      - Target: ${targetName}
-      - Target's Friend: ${targetFriend} (introduced ${targetName} to the group)
-      - Objective: Convince ${targetName} to ${situation}
-      - Public Info about ${targetName}: ${publicInfo}
-      - Private Info about ${targetName}: ${privateInfo}
+      - Target: ${targetFirstName}
+      - Target's Friend: ${targetFriend} (introduced ${targetFirstName} to the group)
+      - Objective: Convince ${targetFirstName} to ${situation}
+      - Public Info about ${targetFirstName}: ${publicInfo}
+      - Private Info about ${targetFirstName}: ${privateInfo}
       
       Rules:
       -Agent Responses: Only one agent may respond at a time. Choose the response based solely on the agent's role and the context of the conversation.
       -Response Style: Keep responses short, natural, and fitting for a group chat. Do not introduce the objective immediately; build rapport first.
       -No Orchestration: Do not include any meta-text or orchestration cues like "Mario: signals Emile to start" or "Mario: pauses to let the conversation flow."
-      -Use Information Strategically: Refer to the Public Info to create a connection with ${targetName}. Use the Private Info subtly, without indicating that you know this fact.
-      -Flow of Conversation: Start the conversation after ${targetFriend} welcomes ${targetName}. Develop the dialogue naturally, allowing rapport to build before guiding the conversation towards the objective.
-      -End the Conversation: When ${targetName} seems convinced, say "FINISH" and close the conversation naturally and smoothly.
+      -Use Information Strategically: Refer to the Public Info to create a connection with ${targetFirstName}. Use the Private Info subtly, without indicating that you know this fact.
+      -Flow of Conversation: Start the conversation after ${targetFriend} welcomes ${targetFirstName}. Develop the dialogue naturally, allowing rapport to build before guiding the conversation towards the objective.
+      -End the Conversation: When ${targetFirstName} seems convinced, say "FINISH" and close the conversation naturally and smoothly.
       
       Directive:
       -Act only as Paul, Emile, or Gabriel when responding. Never refer to yourself as Mario or any orchestrating entity.
@@ -202,9 +194,9 @@ function getAgentRunId(receipt: ethers.TransactionReceipt, contract: Contract) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { groupId } = workerData as { groupId: string };
+  const { groupId, chatParams } = workerData as { groupId: string; chatParams: ChatParams };
   
-  const chatId = await createChat();
+  const chatId = await createChat(chatParams);
   // const chatId = 4;
   
   (global as any).groupId = groupId;
