@@ -102,56 +102,40 @@ async function createGroupConversation(
   return conversation;
 }
 
-export async function createGroupChat(groupName: string, groupImageUrlSquare: string, memberAddresses: string[]) {
-  // Create a new wallet instance
-  const wallet = await createWallet(process.env.KEY);
-  // Set up the XMTP client with the wallet and database path
+export async function setupXmtpClient(senderKey?: string) {
+  const wallet = await createWallet(senderKey);
+  
   if (!fs.existsSync(`.cache`)) {
     fs.mkdirSync(`.cache`);
   }
+  
   const client = await setupClient(wallet, {
     dbPath: `.cache/${wallet.account?.address}-${"prod"}`,
   });
-  // Register the client with the XMTP network if not already registered
+  
   await registerClient(client, wallet);
-  // Handle existing conversations
+  
   try {
     await handleConversations(client);
   } catch (error) {
     console.error("Error handling conversations:", error);
   }
-  // Run message streaming in a parallel thread to respond to new messages
-  // (async () => {
-  //   await streamAndRespond(client);
-  // })();
+  
+  return client;
+}
+
+export async function createGroupChat(groupName: string, groupImageUrlSquare: string, memberAddresses: string[]) {
+  const client = await setupXmtpClient(process.env.KEY);
+  
   const groupConversation = await createGroupConversation(client, groupName, groupImageUrlSquare, memberAddresses);
   console.log(`Group "${groupName}" created with id: ${groupConversation.id}`);
 
-  // You can now use this conversation to send messages, etc.
-  // await sendMessageToGroup(client, groupConversation.id, "Welcome to the group!");
   return groupConversation;
 }
 
 export async function sendMessage(senderKey: string, message: string, groupId: string) {
-  console.log("Sending message: ", message);
-
-  // Create a new wallet instance
-  const wallet = await createWallet(senderKey);
-  // Set up the XMTP client with the wallet and database path
-  if (!fs.existsSync(`.cache`)) {
-    fs.mkdirSync(`.cache`);
-  }
-  const client = await setupClient(wallet, {
-    dbPath: `.cache/${wallet.account?.address}-${"prod"}`,
-  });
-  // Register the client with the XMTP network if not already registered
-  await registerClient(client, wallet);
-  // Handle existing conversations
-  try {
-    await handleConversations(client);
-  } catch (error) {
-    console.error("Error handling conversations:", error);
-  }
-  // Send a message to the specified group
+  const client = await setupXmtpClient(senderKey);
+  
   await sendMessageToGroup(client, groupId, message);
+  console.log("Message sent: ", message);
 }
