@@ -2,8 +2,8 @@ import { HandlerContext, User } from "@xmtp/message-kit";
 import { textGeneration } from "../lib/galadriel.js";
 
 export async function handler(context: HandlerContext) {
-  if (!process?.env?.CHAT_CONTRACT_ADDRESS) {
-    console.log("No CHAT_CONTRACT_ADDRESS found in .env");
+  if (!process?.env?.AGENT_CONTRACT_ADDRESS) {
+    console.log("No AGENT_CONTRACT_ADDRESS found in .env");
     return;
   }
 
