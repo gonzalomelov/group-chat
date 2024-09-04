@@ -203,12 +203,16 @@ function getAgentRunId(receipt: ethers.TransactionReceipt, contract: Contract) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { groupId } = workerData as { groupId: string };
+  
   const chatId = await createChat();
   // const chatId = 4;
+  
   (global as any).groupId = groupId;
   (global as any).chatId = chatId;
+
   console.log("### Group ID ###: ", groupId);
   console.log("### Chat ID index ###: ", chatId);
+
   console.log("### GONZALO ###: run executed");
 
   run(async (context: HandlerContext) => {
