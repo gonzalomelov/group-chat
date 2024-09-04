@@ -22,7 +22,7 @@ const contractAddress = process.env.AGENT_CONTRACT_ADDRESS;
 
 if (!rpcUrl) throw Error("Missing RPC_URL in .env");
 if (!privateKey) throw Error("Missing PRIVATE_KEY in .env");
-if (!contractAddress) throw Error("Missing CHAT_CONTRACT_ADDRESS in .env");
+if (!contractAddress) throw Error("Missing CONTRACT_ADDRESS in .env");
 
 const provider = new ethers.JsonRpcProvider(rpcUrl);
 const wallet = new Wallet(privateKey, provider);
