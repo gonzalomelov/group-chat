@@ -1,21 +1,30 @@
 import { Contract, ethers, Wallet } from "ethers";
-// import ChatGptABI from "../abis/ChatGptABI.js";
-import AgentABI from "../abis/AgentABI.js";
+import OpenAiChatGptABI from "../abis/OpenAiChatGptABI.js";
+import LeadAgentABI from "../abis/LeadAgentABI.js";
 import { sendMessage } from "./xmtp.js";
 
 const rpcUrl = process.env.RPC_URL;
 const privateKey = process.env.PRIVATE_KEY;
 // const contractAddress = process.env.CHAT_CONTRACT_ADDRESS;
 const contractAddress = process.env.AGENT_CONTRACT_ADDRESS;
+const techAgentContractAddress = process.env.TECH_AGENT_CONTRACT_ADDRESS;
+const socialAgentContractAddress = process.env.SOCIAL_AGENT_CONTRACT_ADDRESS;
+const dataAgentContractAddress = process.env.DATA_AGENT_CONTRACT_ADDRESS;
 
 if (!rpcUrl) throw Error("Missing RPC_URL in .env");
 if (!privateKey) throw Error("Missing PRIVATE_KEY in .env");
 if (!contractAddress) throw Error("Missing CONTRACT_ADDRESS in .env");
+if (!techAgentContractAddress) throw Error("Missing TECH_AGENT_CONTRACT_ADDRESS in .env");
+if (!socialAgentContractAddress) throw Error("Missing SOCIAL_AGENT_CONTRACT_ADDRESS in .env");
+if (!dataAgentContractAddress) throw Error("Missing DATA_AGENT_CONTRACT_ADDRESS in .env");
 
 const provider = new ethers.JsonRpcProvider(rpcUrl);
 const wallet = new Wallet(privateKey, provider);
-// const contract = new Contract(contractAddress, ChatGptABI, wallet);
-const contract = new Contract(contractAddress, AgentABI, wallet);
+// const contract = new Contract(contractAddress, OpenAiChatGptABI, wallet);
+const contract = new Contract(contractAddress, LeadAgentABI, wallet);
+const techAgentContract = new Contract(techAgentContractAddress, OpenAiChatGptABI, wallet);
+const socialAgentContract = new Contract(socialAgentContractAddress, OpenAiChatGptABI, wallet);
+const dataAgentContract = new Contract(dataAgentContractAddress, OpenAiChatGptABI, wallet);
 
 interface Message {
   role: string;
@@ -38,24 +47,29 @@ export async function textGeneration(userPrompt: string, systemPrompt: string) {
     console.log(`Message sent, tx hash: ${receipt.hash}`);
 
     // Wait for and retrieve the response
-    const response = await waitForResponse(contract, chatId);
-    // console.log("### Response ###: ", response)
+    const leadCommandResponse = await waitForResponse(contract, chatId);
+    console.log("### Reply ###: ", leadCommandResponse.reply);
 
-    console.log("### Reply ###: ", response.reply);
+    if (leadCommandResponse.reply.includes("Mario:")) {
+      return leadCommandResponse;
+    } else if (leadCommandResponse.reply.includes("TechAgent do:")) {
+      const response = await waitForResponse(techAgentContract, chatId);
+      console.log("### Reply ###: ", response.reply);
 
-    if (response.reply.includes("Mario:")) {
-      return response;
-    } else if (response.reply.includes("Paul:")) {
-      const cleanedReply = response.reply.replace(/^(Paul:|\*\*Paul:\*\*)\s*/, '');
-      sendMessage(process.env.TECH_AGENT_KEY as string, cleanedReply, groupId)
+      // const cleanedReply = leadCommandResponse.reply.replace(/^(TechAgent:|\*\*TechAgent:\*\*)\s*/, '');
+      sendMessage(process.env.TECH_AGENT_KEY as string, response.reply, groupId)
       return { reply: '', history: [] };
-    } else if (response.reply.includes("Emile:")) {
-      const cleanedReply = response.reply.replace(/^(Emile:|\*\*Emile:\*\*)\s*/, '');
-      sendMessage(process.env.SOCIAL_AGENT_KEY as string, cleanedReply, groupId)
+    } else if (leadCommandResponse.reply.includes("SocialAgent do:")) {
+      const response = await waitForResponse(socialAgentContract, chatId);
+
+      // const cleanedReply = leadCommandResponse.reply.replace(/^(SocialAgent:|\*\*SocialAgent:\*\*)\s*/, '');
+      sendMessage(process.env.SOCIAL_AGENT_KEY as string, response.reply, groupId)
       return { reply: '', history: [] };
-    } else if (response.reply.includes("Gabriel:")) {
-      const cleanedReply = response.reply.replace(/^(Gabriel:|\*\*Gabriel:\*\*)\s*/, '');
-      sendMessage(process.env.DATA_AGENT_KEY as string, cleanedReply, groupId)
+    } else if (leadCommandResponse.reply.includes("DataAgent do:")) {
+      const response = await waitForResponse(dataAgentContract, chatId);
+
+      // const cleanedReply = leadCommandResponse.reply.replace(/^(DataAgent:|\*\*DataAgent:\*\*)\s*/, '');
+      sendMessage(process.env.DATA_AGENT_KEY as string, response.reply, groupId)
       return { reply: '', history: [] };
     }
 

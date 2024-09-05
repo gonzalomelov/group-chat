@@ -7,6 +7,21 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "initialTechAgentAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "initialSocialAgentAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "initialDataAgentAddress",
+        "type": "address"
+      },
+      {
         "internalType": "string",
         "name": "systemPrompt",
         "type": "string"
@@ -94,6 +109,19 @@
         "internalType": "bool",
         "name": "is_finished",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "dataAgent",
+    "outputs": [
+      {
+        "internalType": "contract IOpenAiChatGpt",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -320,6 +348,32 @@
     "name": "setOracleAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "socialAgent",
+    "outputs": [
+      {
+        "internalType": "contract IOpenAiChatGpt",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "techAgent",
+    "outputs": [
+      {
+        "internalType": "contract IOpenAiChatGpt",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

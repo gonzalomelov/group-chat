@@ -13,7 +13,7 @@ import { handler as loyalty } from "./handler/loyalty.js";
 import { handler as image } from "./handler/image.js";
 import { handler as galadriel } from "./handler/galadriel.js";
 // import ChatGptABI from "./abis/ChatGptABI.js";
-import AgentABI from "./abis/AgentABI.js";
+import LeadAgentABI from "./abis/LeadAgentABI.js";
 import { ChatParams } from './types.js';
 
 const rpcUrl = process.env.RPC_URL;
@@ -28,7 +28,7 @@ if (!contractAddress) throw Error("Missing CONTRACT_ADDRESS in .env");
 const provider = new ethers.JsonRpcProvider(rpcUrl);
 const wallet = new Wallet(privateKey, provider);
 // const contract = new Contract(contractAddress, ChatGptABI, wallet);
-const contract = new Contract(contractAddress, AgentABI, wallet);
+const contract = new Contract(contractAddress, LeadAgentABI, wallet);
 
 // Define command handlers
 const commandHandlers: CommandHandlers = {
@@ -109,7 +109,7 @@ async function createChat(params: ChatParams) {
     const { targetFirstName, targetFriend, situation, publicInfo, privateInfo } = params;
 
     const prompt = `
-      You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situation}" without revealing that he is being persuaded.
+      You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situation}" without revealing that he/she is being persuaded.
       
       You manage three distinct agents:
       -TechAgent: Handles technical details and logistics.
@@ -126,15 +126,18 @@ async function createChat(params: ChatParams) {
       Rules:
       -Agent Responses: Only one agent must respond at a time. Choose the response based solely on the agent's role and the context of the conversation.
       -Response Style: Keep responses short, natural, and fitting for a group chat. Do not introduce the objective immediately; build rapport first.
-      -No Orchestration: Do not include any meta-text or orchestration cues like "Mario: signals SocialAgent to start" or "Mario: pauses to let the conversation flow."
+      -No Orchestration: Do not include any meta-text or orchestration cues.
       -Use Information Strategically: Refer to the Public Info to create a connection with ${targetFirstName}. Use the Private Info subtly, without indicating that you know this fact.
       -Flow of Conversation: Start the conversation after ${targetFriend} welcomes ${targetFirstName}. Develop the dialogue naturally, allowing rapport to build before guiding the conversation towards the objective.
       -End the Conversation: When ${targetFirstName} seems convinced, say "FINISH" and close the conversation naturally and smoothly.
       
       Directive:
-      -Act only as TechAgent, SocialAgent, or DataAgent when responding. Never refer to yourself as Mario or any orchestrating entity.
-      -Remember: You are creating a seamless, natural group conversation. Stay in character for each agent and maintain a coherent narrative.
-      -If you understand and agree, say "OK" and wait for new messages.
+      -Command Format: When responding, command the agents on what to say, using the format: "[Agent] do: [Action]."
+      -Example: "SocialAgent do: Welcome Bob and ask him how he is doing."
+      -Agent Actions: Act only as TechAgent, SocialAgent, or DataAgent when giving commands. Do not refer to yourself as Mario or any orchestrating entity.
+      -Natural Flow: Create a seamless, natural group conversation by staying in character for each agent and maintaining a coherent narrative.
+
+      If you understand and agree, say just "OK" and wait for new messages.
     `;
 
     const transactionResponse = await contract.runAgent(prompt, 20);

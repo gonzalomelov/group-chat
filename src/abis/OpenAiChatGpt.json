@@ -1,15 +1,10 @@
- [
+[
   {
     "inputs": [
       {
         "internalType": "address",
         "name": "initialOracleAddress",
         "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "knowledgeBaseCID",
-        "type": "string"
       }
     ],
     "stateMutability": "nonpayable",
@@ -68,6 +63,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "addToWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -97,49 +105,12 @@
         "type": "uint256"
       }
     ],
-    "name": "getMessageHistory",
+    "name": "getMessageHistoryContents",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "role",
-            "type": "string"
-          },
-          {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "contentType",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "value",
-                "type": "string"
-              }
-            ],
-            "internalType": "struct IOracle.Content[]",
-            "name": "content",
-            "type": "tuple[]"
-          }
-        ],
-        "internalType": "struct IOracle.Message[]",
+        "internalType": "string[]",
         "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "knowledgeBase",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
+        "type": "string[]"
       }
     ],
     "stateMutability": "view",
@@ -149,23 +120,19 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "runId",
+        "name": "chatId",
         "type": "uint256"
-      },
-      {
-        "internalType": "string[]",
-        "name": "documents",
-        "type": "string[]"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
       }
     ],
-    "name": "onOracleKnowledgeBaseQueryResponse",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "getMessageHistoryRoles",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -182,11 +149,91 @@
       },
       {
         "internalType": "string",
-        "name": "",
+        "name": "errorMessage",
         "type": "string"
       }
     ],
-    "name": "onOracleLlmResponse",
+    "name": "onOracleFunctionResponse",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "runId",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "functionName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "functionArguments",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "created",
+            "type": "uint64"
+          },
+          {
+            "internalType": "string",
+            "name": "model",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "systemFingerprint",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "object",
+            "type": "string"
+          },
+          {
+            "internalType": "uint32",
+            "name": "completionTokens",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "promptTokens",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "totalTokens",
+            "type": "uint32"
+          }
+        ],
+        "internalType": "struct IOracle.OpenAiResponse",
+        "name": "response",
+        "type": "tuple"
+      },
+      {
+        "internalType": "string",
+        "name": "errorMessage",
+        "type": "string"
+      }
+    ],
+    "name": "onOracleOpenAiLlmResponse",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -202,6 +249,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "removeFromWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -234,6 +294,25 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "whitelistedAddresses",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]
