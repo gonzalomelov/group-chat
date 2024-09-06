@@ -24,18 +24,18 @@ await setupXmtpClient(process.env.DATA_AGENT_KEY);
 
 app.post("/group-chats", async (req, res) => {
   try {
-    const { creator, target, targetFirstName, targetFriend, situation, privateInfo, groupTitle, groupImage, connectedAddress } = req.body;
+    const { creator, target, targetFirstName, targetFriend, situation, privateInfo, groupTitle, groupImage } = req.body;
 
     // Validate required fields
-    if (!creator || !target || !targetFirstName || !targetFriend || !situation || !privateInfo || !groupTitle || !groupImage || !connectedAddress) {
+    if (!creator || !target || !targetFirstName || !targetFriend || !situation || !privateInfo || !groupTitle || !groupImage) {
       return res.status(400).json({ error: "Missing required fields in the request body" });
     }
 
     // XMTP addresses
-    const creatorAddress = connectedAddress;
+    const creatorAddress = creator;
     const targetAddress = target;
-    const iPhoneAddress = "0x338bb4600c419a329c6F35bF2cb1f021d8663356"; // iPhone 15 Pro Max
-    const iPhone2Address = "0x91412B4A9F7F8Fb51658505dE5B0B62114E79370"; // iPhone 15
+    const iPhoneAddress = "0xFc89CF03A49169FFca76beBaAaf8e1Dfb5d6579B"; // iPhone 15 Pro Max
+    const iPhone2Address = "0x2c8c68Be6CD8e3f903f5ba7e031BFcd1ef3e8c09"; // iPhone 15
     const agentAddresses = [
       "0xeEE998Beb137A331bf47Aa5Fc366033906F1dB34", // Paul: TECH_AGENT_XMTP_ADDRESS
       "0xE67b3617E9CbAf456977CA9d4b9beAb8944EFc37", // Emile: SOCIAL_AGENT_XMTP_ADDRESS
@@ -46,6 +46,8 @@ app.post("/group-chats", async (req, res) => {
     const botKey = generatePrivateKey() as `0x${string}`;
     process.env.KEY = botKey;
     
+    console.log("### Bot Key ###: ", botKey);
+
     // Create the XMTP group conversation
     const xmtpChat = await createGroupChat(groupTitle, groupImage, groupMembers);
 
