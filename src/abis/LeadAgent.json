@@ -7,24 +7,24 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "initialTechAgentAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "initialSocialAgentAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "initialDataAgentAddress",
-        "type": "address"
-      },
-      {
         "internalType": "string",
         "name": "systemPrompt",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "techAgentFactoryAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "socialAgentFactoryAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "dataAgentFactoryAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -324,13 +324,28 @@
         "internalType": "uint8",
         "name": "max_iterations",
         "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "techAgentPrompt",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "socialAgentPrompt",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "dataAgentPrompt",
+        "type": "string"
       }
     ],
     "name": "runAgent",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "i",
+        "name": "",
         "type": "uint256"
       }
     ],

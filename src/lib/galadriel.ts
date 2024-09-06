@@ -1,5 +1,5 @@
 import { Contract, ethers, Wallet } from "ethers";
-import OpenAiChatGptABI from "../abis/OpenAiChatGptABI.js";
+import OpenAiChatGptABI from "../abis/PrevOpenAiChatGptABI.js";
 import LeadAgentABI from "../abis/LeadAgentABI.js";
 import { sendMessage } from "./xmtp.js";
 
@@ -26,7 +26,7 @@ const techAgentContract = new Contract(techAgentContractAddress, OpenAiChatGptAB
 const socialAgentContract = new Contract(socialAgentContractAddress, OpenAiChatGptABI, wallet);
 const dataAgentContract = new Contract(dataAgentContractAddress, OpenAiChatGptABI, wallet);
 
-interface Message {
+export interface Message {
   role: string;
   content: string;
 }
@@ -80,18 +80,18 @@ export async function textGeneration(userPrompt: string, systemPrompt: string) {
   }
 }
 
-// function getChatId(receipt: ethers.TransactionReceipt, contract: Contract) {
-//   for (const log of receipt.logs) {
-//     try {
-//       const parsedLog = contract.interface.parseLog(log);
-//       if (parsedLog && parsedLog.name === "ChatCreated") {
-//         return ethers.toNumber(parsedLog.args[1]);
-//       }
-//     } catch (error) {
-//       console.log("Could not parse log:", log);
-//     }
-//   }
-// }
+export function getChatId(receipt: ethers.TransactionReceipt, contract: Contract) {
+  for (const log of receipt.logs) {
+    try {
+      const parsedLog = contract.interface.parseLog(log);
+      if (parsedLog && parsedLog.name === "ChatCreated") {
+        return ethers.toNumber(parsedLog.args[1]);
+      }
+    } catch (error) {
+      console.log("Could not parse log:", log);
+    }
+  }
+}
 
 async function waitForResponse(contract: Contract, chatId: number): Promise<{ reply: string, history: Message[] }> {
   let allMessages: Message[] = [];
@@ -128,7 +128,7 @@ async function waitForResponse(contract: Contract, chatId: number): Promise<{ re
 //   }));
 // }
 
-async function getNewMessages(
+export async function getNewMessages(
   contract: Contract,
   agentRunID: number,
   currentMessagesCount: number

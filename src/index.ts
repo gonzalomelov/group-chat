@@ -12,23 +12,25 @@ import { handler as admin } from "./handler/admin.js";
 import { handler as loyalty } from "./handler/loyalty.js";
 import { handler as image } from "./handler/image.js";
 import { handler as galadriel } from "./handler/galadriel.js";
-// import ChatGptABI from "./abis/ChatGptABI.js";
+import PrevOpenAiChatGptABI from "./abis/PrevOpenAiChatGptABI.js";
 import LeadAgentABI from "./abis/LeadAgentABI.js";
 import { ChatParams } from './types.js';
+import { getChatId, getNewMessages } from './lib/galadriel.js';
 
 const rpcUrl = process.env.RPC_URL;
 const privateKey = process.env.PRIVATE_KEY;
-// const contractAddress = process.env.CHAT_CONTRACT_ADDRESS;
-const contractAddress = process.env.AGENT_CONTRACT_ADDRESS;
+const openAiChatGptContractAddress = process.env.CHAT_CONTRACT_ADDRESS;
+const agentContractAddress = process.env.AGENT_CONTRACT_ADDRESS;
 
 if (!rpcUrl) throw Error("Missing RPC_URL in .env");
 if (!privateKey) throw Error("Missing PRIVATE_KEY in .env");
-if (!contractAddress) throw Error("Missing CONTRACT_ADDRESS in .env");
+if (!openAiChatGptContractAddress) throw Error("Missing CHAT_CONTRACT_ADDRESS in .env");
+if (!agentContractAddress) throw Error("Missing AGENT_CONTRACT_ADDRESS in .env");
 
 const provider = new ethers.JsonRpcProvider(rpcUrl);
 const wallet = new Wallet(privateKey, provider);
-// const contract = new Contract(contractAddress, ChatGptABI, wallet);
-const contract = new Contract(contractAddress, LeadAgentABI, wallet);
+const openAiChatGptContract = new Contract(openAiChatGptContractAddress, PrevOpenAiChatGptABI, wallet);
+const agentContract = new Contract(agentContractAddress, LeadAgentABI, wallet);
 
 // Define command handlers
 const commandHandlers: CommandHandlers = {
@@ -109,49 +111,98 @@ async function createChat(params: ChatParams) {
     const { targetFirstName, targetFriend, situation, publicInfo, privateInfo } = params;
 
     const prompt = `
-      You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situation}" without revealing that he/she is being persuaded.
-      
-      You manage three distinct agents:
-      -TechAgent: Handles technical details and logistics.
-      -SocialAgent: Uses charm and social skills to influence.
-      -DataAgent: Provides data-driven insights and predictions.
-      
-      Details:
-      - Target: ${targetFirstName}
-      - Target's Friend: ${targetFriend} (introduced ${targetFirstName} to the group)
-      - Objective: Convince ${targetFirstName} to ${situation}
-      - Public Info about ${targetFirstName}: ${publicInfo}
-      - Private Info about ${targetFirstName}: ${privateInfo}
-      
-      Rules:
-      -Agent Responses: Only one agent must respond at a time. Choose the response based solely on the agent's role and the context of the conversation.
-      -Response Style: Keep responses short, natural, and fitting for a group chat. Do not introduce the objective immediately; build rapport first.
-      -No Orchestration: Do not include any meta-text or orchestration cues.
-      -Use Information Strategically: Refer to the Public Info to create a connection with ${targetFirstName}. Use the Private Info subtly, without indicating that you know this fact.
-      -Flow of Conversation: Start the conversation after ${targetFriend} welcomes ${targetFirstName}. Develop the dialogue naturally, allowing rapport to build before guiding the conversation towards the objective.
-      -End the Conversation: When ${targetFirstName} seems convinced, say "FINISH" and close the conversation naturally and smoothly.
-      
-      Directive:
-      -Command Format: When responding, command the agents on what to say, using the format: "[Agent] do: [Action]."
-      -Example: "SocialAgent do: Welcome Bob and ask him how he is doing."
-      -Agent Actions: Act only as TechAgent, SocialAgent, or DataAgent when giving commands. Do not refer to yourself as Mario or any orchestrating entity.
-      -Natural Flow: Create a seamless, natural group conversation by staying in character for each agent and maintaining a coherent narrative.
+You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situation}" without revealing that he/she is being persuaded.
 
-      If you understand and agree, say just "OK" and wait for new messages.
-    `;
+You manage three distinct agents:
+-TechAgent: Handles technical details and logistics.
+-SocialAgent: Uses charm and social skills to influence.
+-DataAgent: Provides data-driven insights and predictions.
 
-    const transactionResponse = await contract.runAgent(prompt, 20);
+Details:
+- Target: ${targetFirstName}
+- Target's Friend: ${targetFriend} (introduced ${targetFirstName} to the group)
+- Objective: Convince ${targetFirstName} to ${situation}
+- Public Info about ${targetFirstName}: ${publicInfo}
+- Private Info about ${targetFirstName}: ${privateInfo}
+
+Rules:
+-Agent Responses: Only one agent must respond at a time. Choose the response based solely on the agent's role and the context of the conversation.
+-Response Style: Keep responses short, natural, and fitting for a group chat. Do not introduce the objective immediately; build rapport first.
+-No Orchestration: Do not include any meta-text or orchestration cues.
+-Use Information Strategically: Refer to the Public Info to create a connection with ${targetFirstName}. Use the Private Info subtly, without indicating that you know this fact.
+-Flow of Conversation: Start the conversation after ${targetFriend} welcomes ${targetFirstName}. Develop the dialogue naturally, allowing rapport to build before guiding the conversation towards the objective.
+-End the Conversation: When ${targetFirstName} seems convinced, say "FINISH" and close the conversation naturally and smoothly.
+
+Directive:
+-Command Format: When responding, command the agents on what to say, using the format: "[Agent] do: [Action]."
+-Example: "SocialAgent do: Welcome Bob and ask him how he is doing."
+-Agent Actions: Act only as TechAgent, SocialAgent, or DataAgent when giving commands. Do not refer to yourself as Mario or any orchestrating entity.
+-Natural Flow: Create a seamless, natural group conversation by staying in character for each agent and maintaining a coherent narrative.
+
+If you understand and agree, say just "OK" and wait for new messages.
+  `;
+
+    const promptForPrompts = `
+Based on the previous prompt for a LLM, I need you to create a prompt for each of the agents based on their characteristics and your needs. Only output a json with the keys techAgentPrompt, socialAgentPrompt and dataAgentPrompt.
+
+Take this as an example of a situation that aims to convince "Bob" to "Buy Juventus Fan Token", but you must consider the previous prompt:
+
+{"techAgentPrompt":"...","socialAgentPrompt":"You are SocialAgent. Your role is to use charm and social skills to build rapport with Bob in the group chat. Your strength is in making people feel comfortable and engaged through friendly conversation, compliments, and shared interests. Focus on building a connection with Bob by using humor, warmth, and a personal touch. Important: -Start the Conversation: Welcome Bob warmly, ask about his interests, or find common ground. Your goal is to create a friendly, social atmosphere that makes Bob feel at ease and open to suggestion. -Use Information Strategically: Subtly hint at Bob’s interests in Juventus or his need for a new Juventus shirt to keep the conversation casual and engaging. Make it feel like a natural topic of conversation among friends. -Commands Only: Respond only to directives given in the format: 'SocialAgent do: [Action].' -Keep It Dead Short: Make sure all answers are as short as possible to fit the style of a group chat. -Stay in character, use your social skills, and keep the tone light, engaging, and concise.","dataAgentPrompt":"..."}
+
+Take this example as the json output: "{...}"
+  `;
+
+    const promptTransactionResponse = await openAiChatGptContract.startChat(prompt + promptForPrompts);
+    const promptReceipt = await promptTransactionResponse.wait();
+    console.log(`Chat started for prompt generation`);
+
+    // Get the chat ID
+    const chatId = getChatId(promptReceipt, openAiChatGptContract);
+    if (chatId === undefined) {
+      throw new Error("Failed to get chat ID");
+    }
+    console.log(`Created chat ID: ${chatId}`);
+
+    // Wait for the response
+    let response = "";
+    while (!response) {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+      const newMessages = await getNewMessages(openAiChatGptContract, chatId, 1); // We expect 1 message (the response)
+      if (newMessages.length > 0) {
+        response = newMessages[0].content;
+      }
+    }
+
+    console.log("### Response ###: ", response);
+
+    let prompts;
+    try {
+      // Remove any potential code block markers and parse the JSON
+      const jsonContent = response.replace(/^```json\n|\n```$/g, '').trim();
+      prompts = JSON.parse(jsonContent);
+    } catch (error) {
+      console.error("Error parsing JSON response:", error);
+      throw new Error("Failed to parse agent prompts");
+    }
+
+    console.log("### Prompts ###: ", prompts);
+
+    const techAgentPrompt = prompts.techAgentPrompt;
+    const socialAgentPrompt = prompts.socialAgentPrompt;
+    const dataAgentPrompt = prompts.dataAgentPrompt;
+      
+    const transactionResponse = await agentContract.runAgent(prompt, 20, techAgentPrompt, socialAgentPrompt, dataAgentPrompt);
 
     const receipt = await transactionResponse.wait();
     console.log(`Chat created, tx hash: ${receipt.hash}`);
 
-    // const chatId = getChatId(receipt, contract);
+    // const chatId = getChatId(receipt, agentContract);
     // if (chatId === undefined) {
     //   throw new Error("Failed to get chat ID");
     // }
     // console.log(`Created chat ID: ${chatId}`);
 
-    let agentRunID = getAgentRunId(receipt, contract);
+    let agentRunID = getAgentRunId(receipt, agentContract);
     // let agentRunID = 5;
     if (!agentRunID && agentRunID !== 0) {
       throw new Error("Failed to get run ID");
@@ -164,20 +215,6 @@ async function createChat(params: ChatParams) {
     throw error;
   }
 }
-
-// // Function to get chat ID from transaction receipt
-// function getChatId(receipt: ethers.TransactionReceipt, contract: Contract) {
-//   for (const log of receipt.logs) {
-//     try {
-//       const parsedLog = contract.interface.parseLog(log);
-//       if (parsedLog && parsedLog.name === "ChatCreated") {
-//         return ethers.toNumber(parsedLog.args[1]);
-//       }
-//     } catch (error) {
-//       console.log("Could not parse log:", log);
-//     }
-//   }
-// }
 
 function getAgentRunId(receipt: ethers.TransactionReceipt, contract: Contract) {
   let agentRunID
@@ -240,7 +277,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     } catch (error) {
       console.error("Error handling message:", error);
     }
-  }, appConfig);
+  }, appConfig);  
 }
 
 export { run, commandHandlers, commands };
