@@ -152,37 +152,42 @@ Take this as an example of a situation that aims to convince "Bob" to "Buy Juven
 Take this example as the json output: "{...}"
   `;
 
-    const promptTransactionResponse = await openAiChatGptContract.startChat(prompt + promptForPrompts);
-    const promptReceipt = await promptTransactionResponse.wait();
-    console.log(`Chat started for prompt generation`);
-
-    // Get the chat ID
-    const chatId = getChatId(promptReceipt, openAiChatGptContract);
-    if (chatId === undefined) {
-      throw new Error("Failed to get chat ID");
-    }
-    console.log(`Created chat ID: ${chatId}`);
-
-    // Wait for the response
-    let response = "";
-    while (!response) {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
-      const newMessages = await getNewMessages(openAiChatGptContract, chatId, 1); // We expect 1 message (the response)
-      if (newMessages.length > 0) {
-        response = newMessages[0].content;
-      }
-    }
-
-    console.log("### Response ###: ", response);
+    const genericPrompts = {
+      techAgentPrompt: "You are TechAgent. Your role is to handle technical details and logistics. Use your expertise to inform the group about relevant technology concepts. Important: -Explain Concepts: Provide easy-to-understand explanations about various technology topics, including their benefits, how to engage with them, and their functional uses. -Be Relevant: Connect your technical insights to the current conversation subtly, using the interests of the group as a way to introduce the topic naturally. -Commands Only: Respond only to directives given in the format: 'TechAgent do: [Action].' -Stay Concise: Answers should be short and to the point, fitting the group chat context. -Maintain a Helpful Tone: Focus on adding value through technical knowledge.",
+      socialAgentPrompt: "You are SocialAgent. Your role is to use charm and social skills to build rapport with the group. Use your social skills to engage the group in conversation, make them feel comfortable, and keep the conversation flowing. Important: -Start the Conversation: Welcome the group warmly, ask about their interests, or find common ground. Your goal is to create a friendly, social atmosphere that makes the group feel at ease and open to suggestion. -Use Information Strategically: Subtly hint at the interests of the group in technology or their need for a new technology product to keep the conversation casual and engaging. Make it feel like a natural topic of conversation among friends. -Commands Only: Respond only to directives given in the format: 'SocialAgent do: [Action].' -Keep It Dead Short: Make sure all answers are as short as possible to fit the style of a group chat. -Stay in character, use your social skills, and keep the tone light, engaging, and concise.",
+      dataAgentPrompt: "You are DataAgent. Your role is to provide data-driven insights and predictions. Use your knowledge of statistics, data analysis, and predictive modeling to offer informed opinions and predictions. Important: -Analyze Situations: Use the available data to analyze the situation and provide insights into the likely outcomes. -Provide Predictions: Offer predictions based on the data and the current conversation. -Commands Only: Respond only to directives given in the format: 'DataAgent do: [Action].' -Stay Concise: Answers should be short and to the point, fitting the group chat context. -Maintain a Helpful Tone: Focus on adding value through data analysis and predictions.",
+    };
 
     let prompts;
+
     try {
+      const promptTransactionResponse = await openAiChatGptContract.startChat(prompt + promptForPrompts);
+      const promptReceipt = await promptTransactionResponse.wait();
+      console.log(`Chat started for prompt generation`);
+
+      // Get the chat ID
+      const chatId = getChatId(promptReceipt, openAiChatGptContract);
+      if (chatId === undefined) {
+        throw new Error("Failed to get chat ID");
+      }
+      console.log(`Created chat ID: ${chatId}`);
+
+      // Wait for the response
+      let response = "";
+      while (!response) {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+        const newMessages = await getNewMessages(openAiChatGptContract, chatId, 1); // We expect 1 message (the response)
+        if (newMessages.length > 0) {
+          response = newMessages[0].content;
+        }
+      }
+
       // Remove any potential code block markers and parse the JSON
       const jsonContent = response.replace(/^```json\n|\n```$/g, '').trim();
       prompts = JSON.parse(jsonContent);
     } catch (error) {
-      console.error("Error parsing JSON response:", error);
-      throw new Error("Failed to parse agent prompts");
+      console.log("Error generating specific prompts:", error);
+      prompts = genericPrompts;
     }
 
     console.log("### Prompts ###: ", prompts);
