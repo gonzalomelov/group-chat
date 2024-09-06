@@ -108,7 +108,7 @@ async function handleTextMessage(context: HandlerContext) {
 
 async function createChat(params: ChatParams) {
   try {
-    const { targetFirstName, targetFriend, situation, publicInfo, privateInfo } = params;
+    const { creator, target, targetFirstName, targetFriend, situation, publicInfo, privateInfo, groupTitle, groupImage, groupId } = params;
 
     const prompt = `
 You are running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situation}" without revealing that he/she is being persuaded.
@@ -147,7 +147,7 @@ Based on the previous prompt for a LLM, I need you to create a prompt for each o
 
 Take this as an example of a situation that aims to convince "Bob" to "Buy Juventus Fan Token", but you must consider the previous prompt:
 
-{"techAgentPrompt":"...","socialAgentPrompt":"You are SocialAgent. Your role is to use charm and social skills to build rapport with Bob in the group chat. Your strength is in making people feel comfortable and engaged through friendly conversation, compliments, and shared interests. Focus on building a connection with Bob by using humor, warmth, and a personal touch. Important: -Start the Conversation: Welcome Bob warmly, ask about his interests, or find common ground. Your goal is to create a friendly, social atmosphere that makes Bob feel at ease and open to suggestion. -Use Information Strategically: Subtly hint at Bob’s interests in Juventus or his need for a new Juventus shirt to keep the conversation casual and engaging. Make it feel like a natural topic of conversation among friends. -Commands Only: Respond only to directives given in the format: 'SocialAgent do: [Action].' -Keep It Dead Short: Make sure all answers are as short as possible to fit the style of a group chat. -Stay in character, use your social skills, and keep the tone light, engaging, and concise.","dataAgentPrompt":"..."}
+{"techAgentPrompt":"...","socialAgentPrompt":"You are SocialAgent. Your role is to use charm and social skills to build rapport with Bob in the group chat. Your strength is in making people feel comfortable and engaged through friendly conversation, compliments, and shared interests. Focus on building a connection with Bob by using humor, warmth, and a personal touch. Important: -Start the Conversation: Welcome Bob warmly, ask about his interests, or find common ground. Your goal is to create a friendly, social atmosphere that makes Bob feel at ease and open to suggestion. -Use Information Strategically: Subtly hint at Bob's interests in Juventus or his need for a new Juventus shirt to keep the conversation casual and engaging. Make it feel like a natural topic of conversation among friends. -Commands Only: Respond only to directives given in the format: 'SocialAgent do: [Action].' -Keep It Dead Short: Make sure all answers are as short as possible to fit the style of a group chat. -Stay in character, use your social skills, and keep the tone light, engaging, and concise.","dataAgentPrompt":"..."}
 
 Take this example as the json output: "{...}"
   `;
@@ -191,7 +191,23 @@ Take this example as the json output: "{...}"
     const socialAgentPrompt = prompts.socialAgentPrompt;
     const dataAgentPrompt = prompts.dataAgentPrompt;
       
-    const transactionResponse = await agentContract.runAgent(prompt, 20, techAgentPrompt, socialAgentPrompt, dataAgentPrompt);
+    const transactionResponse = await agentContract.runAgent(
+      prompt,
+      20,
+      techAgentPrompt,
+      socialAgentPrompt,
+      dataAgentPrompt,
+      creator,
+      target,
+      targetFirstName,
+      targetFriend,
+      situation,
+      publicInfo,
+      privateInfo,
+      groupTitle,
+      groupImage,
+      groupId
+    );
 
     const receipt = await transactionResponse.wait();
     console.log(`Chat created, tx hash: ${receipt.hash}`);

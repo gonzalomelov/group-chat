@@ -24,18 +24,18 @@ await setupXmtpClient(process.env.DATA_AGENT_KEY);
 
 app.post("/group-chats", async (req, res) => {
   try {
-    const { target, targetFirstName, targetFriend, situation, privateInfo, groupTitle, groupImage, connectedAddress } = req.body;
+    const { creator, target, targetFirstName, targetFriend, situation, privateInfo, groupTitle, groupImage, connectedAddress } = req.body;
 
     // Validate required fields
-    if (!target || !targetFirstName || !situation || !privateInfo || !groupTitle || !groupImage || !connectedAddress) {
+    if (!creator || !target || !targetFirstName || !targetFriend || !situation || !privateInfo || !groupTitle || !groupImage || !connectedAddress) {
       return res.status(400).json({ error: "Missing required fields in the request body" });
     }
 
     // XMTP addresses
     const creatorAddress = connectedAddress;
     const targetAddress = target;
-    const iPhoneAddress = "0x6f0dE9a389e19F40b38817D30C1FFBA6a08b8142"; // iPhone 15 Pro Max
-    const iPhone2Address = "0x9Bec9A9c4961905c6bfB466064C11287d1aC8D6C"; // iPhone 15
+    const iPhoneAddress = "0x338bb4600c419a329c6F35bF2cb1f021d8663356"; // iPhone 15 Pro Max
+    const iPhone2Address = "0x91412B4A9F7F8Fb51658505dE5B0B62114E79370"; // iPhone 15
     const agentAddresses = [
       "0xeEE998Beb137A331bf47Aa5Fc366033906F1dB34", // Paul: TECH_AGENT_XMTP_ADDRESS
       "0xE67b3617E9CbAf456977CA9d4b9beAb8944EFc37", // Emile: SOCIAL_AGENT_XMTP_ADDRESS
@@ -51,16 +51,21 @@ app.post("/group-chats", async (req, res) => {
 
     const { id: groupId } = xmtpChat;
 
+    // FIX THIS USING ENVIO
     const publicInfo = "";
 
     const workerId = `group-chat-${Date.now()}`;
     const chatParams: ChatParams = {
+      creator,
       target,
       targetFirstName,
       targetFriend,
       situation,
       publicInfo,
-      privateInfo
+      privateInfo,
+      groupTitle,
+      groupImage,
+      groupId
     };
 
     const worker = new Worker(path.join(__dirname, 'index.js'), {
