@@ -94,6 +94,7 @@ async function createGroupConversation(
   groupImageUrlSquare: string,
   memberAddresses: string[],
 ) {
+  console.log("### Member Addresses ###: ", memberAddresses);
   // Create the group conversation
   const conversation = await client.conversations.newConversation(memberAddresses, {
     groupName,
