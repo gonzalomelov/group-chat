@@ -158,37 +158,36 @@ Take this example as the json output: "{...}"
       dataAgentPrompt: "You are DataAgent. Your role is to provide data-driven insights and predictions. Use your knowledge of statistics, data analysis, and predictive modeling to offer informed opinions and predictions. Important: -Analyze Situations: Use the available data to analyze the situation and provide insights into the likely outcomes. -Provide Predictions: Offer predictions based on the data and the current conversation. -Commands Only: Respond only to directives given in the format: 'DataAgent do: [Action].' -Stay Concise: Answers should be short and to the point, fitting the group chat context. -Maintain a Helpful Tone: Focus on adding value through data analysis and predictions.",
     };
 
-    let prompts;
+    let prompts = genericPrompts;
 
-    try {
-      const promptTransactionResponse = await openAiChatGptContract.startChat(prompt + promptForPrompts);
-      const promptReceipt = await promptTransactionResponse.wait();
-      console.log(`Chat started for prompt generation`);
+    // try {
+    //   const promptTransactionResponse = await openAiChatGptContract.startChat(prompt + promptForPrompts);
+    //   const promptReceipt = await promptTransactionResponse.wait();
+    //   console.log(`Chat started for prompt generation`);
 
-      // Get the chat ID
-      const chatId = getChatId(promptReceipt, openAiChatGptContract);
-      if (chatId === undefined) {
-        throw new Error("Failed to get chat ID");
-      }
-      console.log(`Created chat ID: ${chatId}`);
+    //   // Get the chat ID
+    //   const chatId = getChatId(promptReceipt, openAiChatGptContract);
+    //   if (chatId === undefined) {
+    //     throw new Error("Failed to get chat ID");
+    //   }
+    //   console.log(`Created chat ID: ${chatId}`);
 
-      // Wait for the response
-      let response = "";
-      while (!response) {
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
-        const newMessages = await getNewMessages(openAiChatGptContract, chatId, 1); // We expect 1 message (the response)
-        if (newMessages.length > 0) {
-          response = newMessages[0].content;
-        }
-      }
+    //   // Wait for the response
+    //   let response = "";
+    //   while (!response) {
+    //     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+    //     const newMessages = await getNewMessages(openAiChatGptContract, chatId, 1); // We expect 1 message (the response)
+    //     if (newMessages.length > 0) {
+    //       response = newMessages[0].content;
+    //     }
+    //   }
 
-      // Remove any potential code block markers and parse the JSON
-      const jsonContent = response.replace(/^```json\n|\n```$/g, '').trim();
-      prompts = JSON.parse(jsonContent);
-    } catch (error) {
-      console.log("Error generating specific prompts:", error);
-      prompts = genericPrompts;
-    }
+    //   // Remove any potential code block markers and parse the JSON
+    //   const jsonContent = response.replace(/^```json\n|\n```$/g, '').trim();
+    //   prompts = JSON.parse(jsonContent);
+    // } catch (error) {
+    //   console.log("Error generating specific prompts:", error);
+    // }
 
     console.log("### Prompts ###: ", prompts);
 
