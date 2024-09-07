@@ -14,7 +14,7 @@ import { handler as image } from "./handler/image.js";
 import { handler as galadriel } from "./handler/galadriel.js";
 import PrevOpenAiChatGptABI from "./abis/PrevOpenAiChatGptABI.js";
 import LeadAgentABI from "./abis/LeadAgentABI.js";
-import { ChatParams } from './types.js';
+import { ChatParams, Situation } from './types.js';
 import { getChatId, getNewMessages } from './lib/galadriel.js';
 
 const rpcUrl = process.env.RPC_URL;
@@ -108,11 +108,18 @@ async function handleTextMessage(context: HandlerContext) {
 }
 
 async function createChat(params: ChatParams) {
+  const simulationTypeMap = {
+    UsdcDonation: "Donate USDC",
+    NftMint: "Mint Charity NFT",
+  };
+
   try {
     const { creator, target, targetFirstName, targetFriend, situation, publicInfo, privateInfo, groupTitle, groupImage, groupId } = params;
 
+    const situationString = simulationTypeMap[situation];
+
     const prompt = `
-You are a helpful assistant running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situation}" without revealing that he/she is being persuaded.
+You are a helpful assistant running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situationString}" without revealing that he/she is being persuaded.
 
 You manage three distinct agents:
 -TechAgent: Handles technical details and logistics.
@@ -122,7 +129,7 @@ You manage three distinct agents:
 Details:
 -Target: ${targetFirstName}
 -Target's Friend: ${targetFriend} (introduced ${targetFirstName} to the group)
--Objective: Convince ${targetFirstName} to ${situation}
+-Objective: Convince ${targetFirstName} to ${situationString}
 -Public Info about ${targetFirstName}: ${publicInfo}
 -Private Info about ${targetFirstName}: ${privateInfo}
 
@@ -136,6 +143,7 @@ Rules:
 -Use Information Strategically: Refer to the Public Info to create a connection with ${targetFirstName}. Use the Private Info subtly, without indicating that you know this fact.
 -Flow of Conversation: Start the conversation after ${targetFriend} welcomes ${targetFirstName}. Develop the dialogue naturally, allowing rapport to build before guiding the conversation towards the objective.
 -Trigger App Action: When ${targetFirstName} seems convinced, think of an app that would help, answer directly with your suggestion and the app between quotation marks. Only this app will be in quotation marks, the rest of the responses should be natural as a group chat. Populate the app with the correct or random values. Always return apps with real values only, using usernames with @ and excluding addresses.
+-App Action Triggered: When ${targetFirstName} uses an app, just tell SocialAgent to thank to ${targetFirstName} and ask if they want to do something else.
 -End the Conversation: When the conversation is over, end the conversation naturally and smoothly.
 
 Directive:
@@ -199,7 +207,7 @@ Take this example as the json output: "{...}"
     const techAgentPrompt = prompts.techAgentPrompt;
     const socialAgentPrompt = prompts.socialAgentPrompt;
     const dataAgentPrompt = prompts.dataAgentPrompt;
-      
+
     const transactionResponse = await agentContract.runAgent(
       prompt,
       20,
@@ -210,7 +218,7 @@ Take this example as the json output: "{...}"
       target,
       targetFirstName,
       targetFriend,
-      situation,
+      Situation[situation],
       publicInfo,
       privateInfo,
       groupTitle,

@@ -21,7 +21,7 @@ interface AgentRunInfo {
   target: string;
   targetFirstName: string;
   targetFriend: string;
-  situation: string;
+  situation: "UsdcDonation" | "NftMint";
   publicInfo: string;
   privateInfo: string;
   groupTitle: string;
@@ -56,7 +56,7 @@ async function createInitialWorkers() {
       target: run.target,
       targetFirstName: run.targetFirstName,
       targetFriend: run.targetFriend,
-      situation: run.situation,
+      situation: run.situation as "UsdcDonation" | "NftMint",
       publicInfo: run.publicInfo,
       privateInfo: run.privateInfo,
       groupTitle: run.groupTitle,
@@ -126,15 +126,20 @@ app.post("/group-chats", async (req, res) => {
     const { creator, target, targetFirstName, targetFriend, situation, privateInfo, groupTitle, groupImage } = req.body;
 
     // Validate required fields
-    if (!creator || !target || !targetFirstName || !targetFriend || !situation || !privateInfo || !groupTitle || !groupImage) {
+    if (!creator || !target || !targetFirstName || !targetFriend || situation === undefined || !privateInfo || !groupTitle || !groupImage) {
       return res.status(400).json({ error: "Missing required fields in the request body" });
+    }
+
+    // Validate situation enum
+    if (!["UsdcDonation", "NftMint"].includes(situation)) {
+      return res.status(400).json({ error: "Invalid situation value" });
     }
 
     // XMTP addresses
     const creatorAddress = creator;
     const targetAddress = target;
-    const iPhoneAddress = "0xFc89CF03A49169FFca76beBaAaf8e1Dfb5d6579B"; // iPhone 15 Pro Max
-    const iPhone2Address = "0x2c8c68Be6CD8e3f903f5ba7e031BFcd1ef3e8c09"; // iPhone 15
+    const iPhoneAddress = "0xbBaA51d7D7A8d9F84A0763C96D36af1ee4f1BA07"; // iPhone 15 Pro Max
+    const iPhone2Address = "0x2d96D6421c1b07D73d422e5A0Bd9b859cc293369"; // iPhone 15
     const agentAddresses = [
       "0xeEE998Beb137A331bf47Aa5Fc366033906F1dB34", // Paul: TECH_AGENT_XMTP_ADDRESS
       "0xE67b3617E9CbAf456977CA9d4b9beAb8944EFc37", // Emile: SOCIAL_AGENT_XMTP_ADDRESS

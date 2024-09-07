@@ -72,6 +72,9 @@ export async function textGeneration(userPrompt: string, systemPrompt: string) {
       sendMessage(process.env.DATA_AGENT_KEY as string, response.reply, groupId)
       return { reply: '', history: [] };
     }
+    // else if (leadCommandResponse.reply.includes("/send") || leadCommandResponse.reply.includes("/swap") || leadCommandResponse.reply.includes("/mint") || leadCommandResponse.reply.includes("/show")) {
+    //   return leadCommandResponse;
+    // }
 
     return { reply: '', history: [] };
   } catch (error) {

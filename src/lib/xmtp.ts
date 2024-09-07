@@ -141,5 +141,4 @@ export async function sendMessage(senderKey: string, message: string, groupId: s
   const client = await setupXmtpClient(senderKey);
 
   await sendMessageToGroup(client, groupId, message);
-  console.log("Message sent: ", message);
 }

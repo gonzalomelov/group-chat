@@ -3,10 +3,15 @@ export interface ChatParams {
   target: string;
   targetFirstName: string;
   targetFriend: string;
-  situation: string;
+  situation: "UsdcDonation" | "NftMint";
   publicInfo: string;
   privateInfo: string;
   groupTitle: string;
   groupImage: string;
   groupId: string;
+}
+
+export enum Situation {
+  UsdcDonation = 0,
+  NftMint = 1,
 }
