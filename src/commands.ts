@@ -1,27 +1,27 @@
 import type { CommandGroup } from "@xmtp/message-kit";
 
 export const commands: CommandGroup[] = [
-  {
-    name: "Tipping",
-    icon: "🎩",
-    description: "Tip tokens via emoji, replies or command.",
-    commands: [
-      {
-        command: "/tip [@users] [amount] [token]",
-        description: "Tip users in a specified token.",
-        params: {
-          username: {
-            default: "",
-            type: "username",
-          },
-          amount: {
-            default: 10,
-            type: "number",
-          },
-        },
-      },
-    ],
-  },
+  // {
+  //   name: "Tipping",
+  //   icon: "🎩",
+  //   description: "Tip tokens via emoji, replies or command.",
+  //   commands: [
+  //     {
+  //       command: "/tip [@users] [amount] [token]",
+  //       description: "Tip users in a specified token.",
+  //       params: {
+  //         username: {
+  //           default: "",
+  //           type: "username",
+  //         },
+  //         amount: {
+  //           default: 10,
+  //           type: "number",
+  //         },
+  //       },
+  //     },
+  //   ],
+  // },
   {
     name: "Base Transactions",
     icon: "🖼️",
@@ -88,123 +88,123 @@ export const commands: CommandGroup[] = [
       },
     ],
   },
-  {
-    name: "Betting",
-    icon: "🎰",
-    description: "Create bets with friends.",
-    commands: [
-      {
-        command: "/bet @users [name] [amount] [token]",
-        description: "Bet on basebet.",
-        params: {
-          username: {
-            default: "",
-            type: "username",
-          },
-          name: {
-            default: "",
-            type: "quoted",
-          },
-          amount: {
-            default: 10,
-            type: "number",
-          },
-          token: {
-            default: "eth",
-            type: "string",
-            values: ["eth", "dai", "usdc", "degen"],
-          },
-        },
-      },
-    ],
-  },
-  {
-    name: "Games",
-    icon: "🕹️",
-    description: "Provides various gaming experiences.",
-    commands: [
-      {
-        command: "/game [game]",
-        description: "Play a game.",
-        params: {
-          game: {
-            default: "",
-            type: "string",
-            values: ["wordle", "slot", "guessr", "rockpaperscissors", "help"],
-          },
-        },
-      },
-    ],
-  },
-  {
-    name: "Loyalty",
-    icon: "🔓",
-    description: "Manage group members and metadata.",
-    commands: [
-      {
-        command: "/points",
-        description: "Check your points.",
-        params: {},
-      },
-      {
-        command: "/leaderboard",
-        description: "Check the points of a user.",
-        params: {},
-      },
-    ],
-  },
-  {
-    name: "Agent",
-    icon: "🤖",
-    description: "Manage agent commands.",
-    commands: [
-      {
-        command: "/agent [prompt]",
-        description: "Manage agent commands.",
-        params: {
-          prompt: {
-            default: "",
-            type: "string",
-          },
-        },
-      },
-    ],
-  },
-  {
-    name: "Admin",
-    icon: "🔐",
-    description: "Manage group members and metadata.",
-    commands: [
-      {
-        command: "/add [username]",
-        description: "Add a user.",
-        params: {
-          username: {
-            default: "",
-            type: "username",
-          },
-        },
-      },
-      {
-        command: "/remove [username]",
-        description: "Remove a user.",
-        params: {
-          username: {
-            default: "",
-            type: "username",
-          },
-        },
-      },
-      {
-        command: "/name [name]",
-        description: "Set the name of the group.",
-        params: {
-          name: {
-            default: "",
-            type: "quoted",
-          },
-        },
-      },
-    ],
-  },
+  // {
+  //   name: "Betting",
+  //   icon: "🎰",
+  //   description: "Create bets with friends.",
+  //   commands: [
+  //     {
+  //       command: "/bet @users [name] [amount] [token]",
+  //       description: "Bet on basebet.",
+  //       params: {
+  //         username: {
+  //           default: "",
+  //           type: "username",
+  //         },
+  //         name: {
+  //           default: "",
+  //           type: "quoted",
+  //         },
+  //         amount: {
+  //           default: 10,
+  //           type: "number",
+  //         },
+  //         token: {
+  //           default: "eth",
+  //           type: "string",
+  //           values: ["eth", "dai", "usdc", "degen"],
+  //         },
+  //       },
+  //     },
+  //   ],
+  // },
+  // {
+  //   name: "Games",
+  //   icon: "🕹️",
+  //   description: "Provides various gaming experiences.",
+  //   commands: [
+  //     {
+  //       command: "/game [game]",
+  //       description: "Play a game.",
+  //       params: {
+  //         game: {
+  //           default: "",
+  //           type: "string",
+  //           values: ["wordle", "slot", "guessr", "rockpaperscissors", "help"],
+  //         },
+  //       },
+  //     },
+  //   ],
+  // },
+  // {
+  //   name: "Loyalty",
+  //   icon: "🔓",
+  //   description: "Manage group members and metadata.",
+  //   commands: [
+  //     {
+  //       command: "/points",
+  //       description: "Check your points.",
+  //       params: {},
+  //     },
+  //     {
+  //       command: "/leaderboard",
+  //       description: "Check the points of a user.",
+  //       params: {},
+  //     },
+  //   ],
+  // },
+  // {
+  //   name: "Agent",
+  //   icon: "🤖",
+  //   description: "Manage agent commands.",
+  //   commands: [
+  //     {
+  //       command: "/agent [prompt]",
+  //       description: "Manage agent commands.",
+  //       params: {
+  //         prompt: {
+  //           default: "",
+  //           type: "string",
+  //         },
+  //       },
+  //     },
+  //   ],
+  // },
+  // {
+  //   name: "Admin",
+  //   icon: "🔐",
+  //   description: "Manage group members and metadata.",
+  //   commands: [
+  //     {
+  //       command: "/add [username]",
+  //       description: "Add a user.",
+  //       params: {
+  //         username: {
+  //           default: "",
+  //           type: "username",
+  //         },
+  //       },
+  //     },
+  //     {
+  //       command: "/remove [username]",
+  //       description: "Remove a user.",
+  //       params: {
+  //         username: {
+  //           default: "",
+  //           type: "username",
+  //         },
+  //       },
+  //     },
+  //     {
+  //       command: "/name [name]",
+  //       description: "Set the name of the group.",
+  //       params: {
+  //         name: {
+  //           default: "",
+  //           type: "quoted",
+  //         },
+  //       },
+  //     },
+  //   ],
+  // },
 ];
