@@ -254,10 +254,21 @@ function getAgentRunId(receipt: ethers.TransactionReceipt, contract: Contract) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { groupId, chatParams } = workerData as { groupId: string; chatParams: ChatParams };
+  const { groupId, chatParams, chatId: existingChatId } = workerData as { 
+    groupId: string; 
+    chatParams: ChatParams;
+    chatId?: number;
+  };
   
-  const chatId = await createChat(chatParams);
-  // const chatId = 4;
+  let chatId: number;
+
+  if (existingChatId !== undefined) {
+    console.log("### Using existing chat ###");
+    chatId = existingChatId;
+  } else {
+    console.log("### Creating new chat ###");
+    chatId = await createChat(chatParams);
+  }
   
   (global as any).groupId = groupId;
   (global as any).chatId = chatId;

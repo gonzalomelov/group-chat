@@ -198,7 +198,7 @@
         "type": "address"
       }
     ],
-    "name": "getAgentRunsForCreator",
+    "name": "getAgentRuns",
     "outputs": [
       {
         "components": [
@@ -258,23 +258,6 @@
             "type": "string"
           },
           {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "role",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "content",
-                "type": "string"
-              }
-            ],
-            "internalType": "struct LeadAgent.Message[]",
-            "name": "commands",
-            "type": "tuple[]"
-          },
-          {
             "internalType": "uint256",
             "name": "responsesCount",
             "type": "uint256"
@@ -290,7 +273,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct LeadAgent.AgentRun[]",
+        "internalType": "struct LeadAgent.AgentRunInfo[]",
         "name": "",
         "type": "tuple[]"
       }

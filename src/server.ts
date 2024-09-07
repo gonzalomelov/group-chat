@@ -1,5 +1,5 @@
 import express from 'express';
-import { Worker } from 'worker_threads';
+import { Worker, WorkerOptions } from 'worker_threads';
 import path from 'path';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
@@ -7,20 +7,119 @@ import { dirname } from 'path';
 import { generatePrivateKey } from "viem/accounts";
 import { createGroupChat, setupXmtpClient } from './lib/xmtp.js';
 import { ChatParams } from './types.js';
+import { ethers } from 'ethers';
+import LeadAgentABI from "./abis/LeadAgentABI.js";
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+interface AgentRunInfo {
+  owner: string;
+  creator: string;
+  target: string;
+  targetFirstName: string;
+  targetFriend: string;
+  situation: string;
+  publicInfo: string;
+  privateInfo: string;
+  groupTitle: string;
+  groupImage: string;
+  groupId: string;
+  responsesCount: number;
+  max_iterations: number;
+  is_finished: boolean;
+}
+
 const app = express();
 app.use(express.json());
 
 const activeWorkers = new Map();
 
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+const agentContract = new ethers.Contract(process.env.AGENT_CONTRACT_ADDRESS!, LeadAgentABI, wallet);
+
 await setupXmtpClient(process.env.TECH_AGENT_KEY);
 await setupXmtpClient(process.env.SOCIAL_AGENT_KEY);
 await setupXmtpClient(process.env.DATA_AGENT_KEY);
+
+createInitialWorkers();
+
+async function createInitialWorkers() {
+  const activeRuns = await getActiveAgentRuns();
+  
+  activeRuns.forEach((run: AgentRunInfo, index: number) => {
+    const chatParams: ChatParams = {
+      creator: run.creator,
+      target: run.target,
+      targetFirstName: run.targetFirstName,
+      targetFriend: run.targetFriend,
+      situation: run.situation,
+      publicInfo: run.publicInfo,
+      privateInfo: run.privateInfo,
+      groupTitle: run.groupTitle,
+      groupImage: run.groupImage,
+      groupId: run.groupId
+    };
+
+    const botKey = generatePrivateKey() as `0x${string}`;
+    process.env.KEY = botKey;
+    const workerId = `group-chat-${run.groupId}`;
+    console.log("### Worker ID ###: ", workerId);
+    console.log("### Gonzalo: Chat ID ###: ", index);
+    const worker = createWorker(workerId, chatParams, botKey, index);
+    activeWorkers.set(workerId, worker);
+
+    console.log(`Worker created for existing run: ${workerId}`);
+  });
+}
+
+async function getActiveAgentRuns() {
+  try {
+    const activeRuns = await agentContract.getAgentRuns(ethers.ZeroAddress);
+    console.log("### Active runs ###: ", activeRuns);
+    return activeRuns;
+  } catch (error) {
+    console.error("Error fetching active agent runs:", error);
+    return [];
+  }
+}
+
+function createWorker(workerId: string, chatParams: ChatParams, botKey: string, chatId?: number): Worker {
+  const workerOptions: WorkerOptions = {
+    workerData: {
+      RPC_URL: process.env.RPC_URL,
+      PRIVATE_KEY: process.env.PRIVATE_KEY,
+      AGENT_CONTRACT_ADDRESS: process.env.AGENT_CONTRACT_ADDRESS,
+      OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY,
+      STACK_API_KEY: process.env.STACK_API_KEY,
+      MSG_LOG: process.env.MSG_LOG,
+      groupId: chatParams.groupId,
+      botKey,
+      chatParams,
+      chatId,
+    },
+  };
+
+  const worker = new Worker(path.join(__dirname, 'index.js'), workerOptions);
+
+  worker.on("message", (message) => {
+    console.log(`Message from worker ${workerId}:`, message);
+  });
+
+  worker.on("error", (error) => {
+    console.error(`Error in worker ${workerId}:`, error);
+  });
+
+  worker.on("exit", (code) => {
+    console.log(`Worker ${workerId} exited with code ${code}`);
+    activeWorkers.delete(workerId);
+  });
+
+  return worker;
+}
 
 app.post("/group-chats", async (req, res) => {
   try {
@@ -70,32 +169,7 @@ app.post("/group-chats", async (req, res) => {
       groupId
     };
 
-    const worker = new Worker(path.join(__dirname, 'index.js'), {
-      workerData: {
-        RPC_URL: process.env.RPC_URL,
-        PRIVATE_KEY: process.env.PRIVATE_KEY,
-        AGENT_CONTRACT_ADDRESS: process.env.AGENT_CONTRACT_ADDRESS,
-        OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY,
-        STACK_API_KEY: process.env.STACK_API_KEY,
-        MSG_LOG: process.env.MSG_LOG,
-        groupId,
-        botKey,
-        chatParams,
-      },
-    });
-
-    worker.on("message", (message) => {
-      console.log(`Message from worker ${workerId}:`, message);
-    });
-
-    worker.on("error", (error) => {
-      console.error(`Error in worker ${workerId}:`, error);
-    });
-
-    worker.on("exit", (code) => {
-      console.log(`Worker ${workerId} exited with code ${code}`);
-      activeWorkers.delete(workerId);
-    });
+    const worker = createWorker(workerId, chatParams, botKey);
 
     activeWorkers.set(workerId, worker);
 
