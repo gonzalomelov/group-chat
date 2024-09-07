@@ -114,12 +114,12 @@ async function createChat(params: ChatParams) {
   };
 
   try {
-    const { creator, target, targetFirstName, targetFriend, situation, publicInfo, privateInfo, groupTitle, groupImage, groupId } = params;
+    const { creator, target, targetFirstName, targetFriend, situation, situationAddress, publicInfo, privateInfo, groupTitle, groupImage, groupId } = params;
 
     const situationString = simulationTypeMap[situation];
 
     const prompt = `
-You are a helpful assistant running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situationString}" without revealing that he/she is being persuaded.
+You are a helpful assistant running a group chat simulation. Your role is to lead a conversation to subtly convince "${targetFirstName}" to "${situationString}" to "${situationAddress}" without revealing that he/she is being persuaded.
 
 You manage three distinct agents:
 -TechAgent: Handles technical details and logistics.
@@ -219,6 +219,7 @@ Take this example as the json output: "{...}"
       targetFirstName,
       targetFriend,
       Situation[situation],
+      situationAddress,
       publicInfo,
       privateInfo,
       groupTitle,

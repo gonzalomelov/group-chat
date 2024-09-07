@@ -22,6 +22,7 @@ interface AgentRunInfo {
   targetFirstName: string;
   targetFriend: string;
   situation: "UsdcDonation" | "NftMint";
+  situationAddress: string;
   publicInfo: string;
   privateInfo: string;
   groupTitle: string;
@@ -57,6 +58,7 @@ async function createInitialWorkers() {
       targetFirstName: run.targetFirstName,
       targetFriend: run.targetFriend,
       situation: run.situation as "UsdcDonation" | "NftMint",
+      situationAddress: run.situationAddress,
       publicInfo: run.publicInfo,
       privateInfo: run.privateInfo,
       groupTitle: run.groupTitle,
@@ -123,10 +125,10 @@ function createWorker(workerId: string, chatParams: ChatParams, botKey: string, 
 
 app.post("/group-chats", async (req, res) => {
   try {
-    const { creator, target, targetFirstName, targetFriend, situation, privateInfo, groupTitle, groupImage } = req.body;
+    const { creator, target, targetFirstName, targetFriend, situation, situationAddress, privateInfo, groupTitle, groupImage } = req.body;
 
     // Validate required fields
-    if (!creator || !target || !targetFirstName || !targetFriend || situation === undefined || !privateInfo || !groupTitle || !groupImage) {
+    if (!creator || !target || !targetFirstName || !targetFriend || situation === undefined || !situationAddress || !privateInfo || !groupTitle || !groupImage) {
       return res.status(400).json({ error: "Missing required fields in the request body" });
     }
 
@@ -167,6 +169,7 @@ app.post("/group-chats", async (req, res) => {
       targetFirstName,
       targetFriend,
       situation,
+      situationAddress,
       publicInfo,
       privateInfo,
       groupTitle,

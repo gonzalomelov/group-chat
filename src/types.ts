@@ -4,6 +4,7 @@ export interface ChatParams {
   targetFirstName: string;
   targetFriend: string;
   situation: "UsdcDonation" | "NftMint";
+  situationAddress: string;
   publicInfo: string;
   privateInfo: string;
   groupTitle: string;

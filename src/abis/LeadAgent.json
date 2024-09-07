@@ -134,6 +134,11 @@
         "type": "uint8"
       },
       {
+        "internalType": "address",
+        "name": "situationAddress",
+        "type": "address"
+      },
+      {
         "internalType": "string",
         "name": "publicInfo",
         "type": "string"
@@ -231,6 +236,11 @@
             "internalType": "enum LeadAgent.Situation",
             "name": "situation",
             "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "situationAddress",
+            "type": "address"
           },
           {
             "internalType": "string",
@@ -518,6 +528,11 @@
         "internalType": "enum LeadAgent.Situation",
         "name": "situation",
         "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "situationAddress",
+        "type": "address"
       },
       {
         "internalType": "string",
