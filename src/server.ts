@@ -27,7 +27,7 @@ interface AgentRunInfo {
   groupTitle: string;
   groupImage: string;
   groupId: string;
-  responsesCount: number;
+  responsesCount: bigint;
   max_iterations: number;
   is_finished: boolean;
 }
