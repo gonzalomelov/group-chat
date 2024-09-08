@@ -9,6 +9,8 @@ import { createGroupChat, setupXmtpClient } from './lib/xmtp.js';
 import { ChatParams } from './types.js';
 import { ethers } from 'ethers';
 import LeadAgentABI from "./abis/LeadAgentABI.js";
+import { SignProtocolClient, SpMode, EvmChains } from '@ethsign/sp-sdk';
+import { privateKeyToAccount } from 'viem/accounts';
 
 dotenv.config();
 
@@ -197,6 +199,85 @@ app.post("/group-chats", async (req, res) => {
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
+});
+
+// Initialize SignProtocolClient
+const spClient = new SignProtocolClient(SpMode.OnChain, {
+  chain: EvmChains.baseSepolia,
+  account: privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`),
+});
+
+app.post("/api/simulations/:id/verify", async (req, res) => {
+  console.log("Received verification request for simulation ID:", req.params.id);
+  
+  try {
+    const { id } = req.params;
+    const runId = parseInt(id);
+    
+    console.log("Fetching run data for simulation ID:", runId);
+    // Fetch the specific agent run directly
+    const run = await agentContract.agentRuns(runId);
+    
+    if (!run || run.creator === ethers.ZeroAddress) {
+      console.log("Simulation not found for ID:", runId);
+      return res.status(404).json({ error: "Simulation not found" });
+    }
+
+    console.log("Run data fetched successfully:", run);
+    console.log("Creator:", run.creator);
+    console.log("Situation:", run.situation);
+
+    // 0x5b664d8d0926bc540bd6401ad7738459a824036c NFT Contract
+    // 0x03508bB71268BBA25ECaCC8F620e01866650532c NFT Owner
+
+    const situationString = run.situation === 0n ? "UsdcDonation" : "NftMint";
+
+    console.log("Situation String:", situationString);
+
+    const extraData = ethers.AbiCoder.defaultAbiCoder().encode(
+      ['string', 'address', 'address'],
+      [situationString, run.situationAddress, run.creator]
+    );
+
+    console.log("Extra Data:", extraData);
+
+    console.log("Creating attestation...");
+    // Create attestation
+    const createAttestationRes = await spClient.createAttestation({
+      schemaId: '0x27b',
+      data: {
+        action: situationString,
+        actionAddress: run.situationAddress,
+        recipient: run.creator
+      },
+      recipients: [run.creator],
+      indexingValue: id,
+    }, {
+      extraData: extraData as `0x${string}`
+    });
+
+    console.log("Attestation created successfully");
+    console.log("Attestation ID:", createAttestationRes.attestationId);
+    console.log("Transaction Hash:", createAttestationRes.txHash);
+    console.log("Indexing Value:", createAttestationRes.indexingValue);
+
+    res.json({
+      message: "Attestation created successfully",
+      attestationId: createAttestationRes.attestationId,
+      txHash: createAttestationRes.txHash,
+      indexingValue: createAttestationRes.indexingValue,
+    });
+  } catch (error) {
+    console.error("Error verifying simulation:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
+    res.status(500).json({ 
+      error: "Failed to verify simulation", 
+      details: error instanceof Error ? error.message : String(error) 
+    });
+  }
 });
 
 const PORT = process.env.PORT || 3000;

@@ -9,6 +9,7 @@
     "start": "node dist/server.js"
   },
   "dependencies": {
+    "@ethsign/sp-sdk": "^0.7.3",
     "@stackso/js-core": "^0.3.1",
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.2",
